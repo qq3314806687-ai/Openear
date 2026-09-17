@@ -1,0 +1,22 @@
+# 依赖
+/node_modules
+
+# Next.js 构建产物
+/.next/
+/out/
+/vercel-output/
+
+# 本地构建
+/build
+scripts/.build
+
+# 环境变量（含密钥，禁止上传；部署时配到托管平台的环境变量里）
+.env
+.env*.local
+
+# 其它
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+*.log
+*.pid
