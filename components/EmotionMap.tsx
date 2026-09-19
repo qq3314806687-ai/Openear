@@ -10,7 +10,7 @@
  * - 点击点弹出预览卡（常驻，不随光标离开消失）：歌曲信息 + 试听 + 加入歌单；
  *   点击卡片内按钮执行后关闭，点击地图空白或其它点切换。
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { Song } from '@/lib/types';
 
 const W = 460;
@@ -57,6 +57,8 @@ export default function EmotionMap({
   nowPlayingId,
   playing = false,
 }: Props) {
+  // 地图外包容器（用于计算预览卡的水平钳制，防止屏幕边缘的点卡片跑出屏）
+  const wrapRef = useRef<HTMLDivElement>(null);
   // 点击选中的点（驱动预览卡，常驻不随光标消失）
   const [active, setActive] = useState<{ song: Song; x: number; y: number } | null>(null);
   // 光标悬停高亮（仅视觉反馈，不控制弹窗）
@@ -70,11 +72,19 @@ export default function EmotionMap({
   // 当前点是否正在播放（试听按钮联动）
   const isThisPlaying = !!active && nowPlayingId != null && nowPlayingId === active.song.id && playing;
 
+  // 预览卡水平位置：钳制在容器内，避免屏幕边缘的点卡片跑出屏外/产生横向滚动
+  const CARD_W = 224; // w-56
+  const wrapW = wrapRef.current?.clientWidth ?? W;
+  const cardLeftRaw = active ? (active.x / W) * wrapW : 0;
+  const cardLeftLo = CARD_W / 2 + 4;
+  const cardLeftHi = Math.max(cardLeftLo, wrapW - CARD_W / 2 - 4);
+  const cardLeftPx = Math.min(cardLeftHi, Math.max(cardLeftLo, cardLeftRaw));
+
   const openCard = (s: Song) => setActive({ song: s, x: xOf(s), y: yOf(s) });
 
   return (
     <div className="flex h-full min-h-[340px] w-full flex-col">
-      <div className="relative w-full flex-1">
+      <div className="relative w-full flex-1" ref={wrapRef}>
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" onClick={() => setActive(null)}>
           <defs>
             <clipPath id="plotClip">
@@ -233,7 +243,7 @@ export default function EmotionMap({
           <div
             className="absolute z-10 w-56 rounded-xl border border-white/10 bg-black/90 px-3 py-2.5 text-xs shadow-glow pointer-events-auto"
             style={{
-              left: `${(active.x / W) * 100}%`,
+              left: `${cardLeftPx}px`,
               top: `${(active.y / H) * 100}%`,
               transform: placeBelow ? 'translate(-50%, 14px)' : 'translate(-50%, calc(-100% - 14px))',
             }}

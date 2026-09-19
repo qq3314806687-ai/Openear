@@ -9,6 +9,8 @@
 html,
 body {
   min-height: 100%;
+  /* 手机端安全网：任何越界元素不再撑起整页横向滚动/整体缩放 */
+  overflow-x: hidden;
 }
 
 body {
