@@ -1,5 +1,5 @@
-/**
- * OpenEar（解茧）全局数据类型定义
+﻿/**
+ * 闻野 OpenEar全局数据类型定义
  * 对齐 PRD §5 数据模型
  */
 
@@ -28,13 +28,14 @@ export interface User {
   history: string[]; // 已听歌曲 ID 列表
 }
 
-/** 滑块档位 */
-export type Intensity = 'conservative' | 'balanced' | 'aggressive';
+/** 探索强度：0-100 数值（0=最保守贴身，100=最激进野探） */
+export type Intensity = number;
 
-/** 滑块档位参数映射（PRD §3.2.1） */
+/** 探索强度参数（由 0-100 连续插值得到） */
 export interface IntensityParam {
-  styleDistanceMax: number; // 流派距离上限
-  emotionStepMax: number; // 情绪步长上限
+  styleDistanceMax: number; // 流派距离上限（技术层），越大跨界越远
+  emotionStepMax: number; // 离家百分位（情绪层），0=每扇区贴最近，1=每扇区取最远
+  familiarityWeight: number; // 熟悉度权重（行为层），越高越保守
 }
 
 /** 单首推荐结果（运行时生成） */

@@ -105,7 +105,7 @@ export default function PlaylistPanel({
   };
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-panel p-4 backdrop-blur">
+    <section className="lift rounded-3xl glass p-4">
       <div className="mb-3 flex items-center justify-between px-1">
         <h2 className="text-sm font-semibold text-white">我的歌单</h2>
         <span className="text-[11px] text-white/40">{playlist.length} 首</span>
@@ -248,7 +248,7 @@ export default function PlaylistPanel({
           {err && <p className="text-[11px] text-rose-300">{err}</p>}
           <button
             type="submit"
-            className="w-full rounded-xl bg-gradient-to-r from-violet-500/80 to-cyan-500/80 py-2 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+            className="btn-lift w-full rounded-xl bg-gradient-to-r from-violet-500/80 to-cyan-500/80 py-2 text-xs font-semibold text-white hover:opacity-90"
           >
             加入歌单并参与分析
           </button>
@@ -313,7 +313,7 @@ export default function PlaylistPanel({
           {ok && <p className="text-[11px] text-emerald-300">{ok}</p>}
           <button
             type="submit"
-            className="w-full rounded-xl bg-gradient-to-r from-violet-500/80 to-cyan-500/80 py-2 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+            className="btn-lift w-full rounded-xl bg-gradient-to-r from-violet-500/80 to-cyan-500/80 py-2 text-xs font-semibold text-white hover:opacity-90"
           >
             上传并参与分析
           </button>
@@ -337,16 +337,14 @@ export default function PlaylistPanel({
                 </span>
               </span>
               {nowPlayingId === s.id && playing && <span className="text-[9px] text-cyan-300">播放中</span>}
-              {s.audioUrl && (
-                <button
-                  type="button"
-                  onClick={() => onPlay(s)}
-                  aria-label="试听"
-                  className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/10 text-white/60 transition-colors hover:border-cyan-400/50 hover:text-cyan-300"
-                >
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5L8 5.5Z" /></svg>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => onPlay(s)}
+                aria-label="试听"
+                className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/10 text-white/60 transition-colors hover:border-cyan-400/50 hover:text-cyan-300"
+              >
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5L8 5.5Z" /></svg>
+              </button>
               <button
                 type="button"
                 onClick={() => onRemove(s.id)}

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 红心歌单存储：每个用户维护一份"我添加的歌曲"歌单（localStorage 持久化）。
  * - 可从内置曲库添加（source: builtin）
  * - 也可粘贴音频直链自建歌曲（source: custom，额外写入全局 extras 注册表）

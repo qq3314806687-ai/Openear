@@ -2,16 +2,25 @@
 
 /**
  * 探索强度滑块（PRD §3.2.1）
- * 三档：保守 / 平衡 / 激进。轨道蓝→紫→橙红渐变。
+ * 0-100 连续数值，档位刻度标在 0/25/50/75/100。
+ * 强度越低 → 技术(流派跨界)/情绪(VA步长)/行为(熟悉度)三层都更保守。
  */
 import type { Intensity } from '@/lib/types';
 
-const LEVELS: Intensity[] = ['conservative', 'balanced', 'aggressive'];
-const LEVEL_META: Record<Intensity, { label: string; desc: string; color: string }> = {
-  conservative: { label: '保守', desc: '同族流派 · 情绪微调', color: '#3b82f6' },
-  balanced: { label: '平衡', desc: '适度跨界 · 平滑过渡', color: '#8b5cf6' },
-  aggressive: { label: '激进', desc: '跨家族 · 大步探索', color: '#f97316' },
-};
+/** 档位刻度与文案（用于标记与动态命名） */
+const MARKS: Array<{ v: number; label: string; desc: string; color: string }> = [
+  { v: 0, label: '贴身', desc: '只在本便步，情绪几乎不动', color: '#7ba07d' },
+  { v: 25, label: '缓进', desc: '同族流派 · 情绪微调', color: '#8aa87e' },
+  { v: 50, label: '平衡', desc: '适度跨界 · 平滑过渡', color: '#9fbeae' },
+  { v: 75, label: '野探', desc: '跨家族 · 大步探索', color: '#d9a06a' },
+  { v: 100, label: '极野', desc: '放开手脚 · 到处走走', color: '#e08a5f' },
+];
+
+function bandOf(v: Intensity): (typeof MARKS)[number] {
+  const last = MARKS[MARKS.length - 1];
+  if (v >= last.v) return last;
+  return MARKS.find((m) => v < m.v) ?? last;
+}
 
 interface Props {
   value: Intensity;
@@ -19,15 +28,14 @@ interface Props {
 }
 
 export default function IntensitySlider({ value, onChange }: Props) {
-  const idx = LEVELS.indexOf(value);
-  const meta = LEVEL_META[value];
+  const meta = bandOf(value);
 
   return (
     <div className="space-y-4">
       <div className="flex items-end justify-between">
         <div>
           <p className="text-sm font-semibold text-white">探索强度</p>
-          <p className="text-xs text-white/50">向左保守不踏空，向右激进走世界</p>
+          <p className="text-xs text-white/50">{value} / 100 · 向左保守贴身，向右野探世界</p>
         </div>
         <span
           className="rounded-full px-3 py-1 text-sm font-bold"
@@ -40,18 +48,23 @@ export default function IntensitySlider({ value, onChange }: Props) {
       <input
         type="range"
         min={0}
-        max={2}
+        max={100}
         step={1}
-        value={idx}
-        aria-label="探索强度"
-        onChange={(e) => onChange(LEVELS[Number(e.target.value)])}
+        value={value}
+        aria-label="探索强度 (0-100)"
+        onChange={(e) => onChange(Number(e.target.value))}
         className="intensity-range"
       />
 
+      {/* 档位刻度：0 / 25 / 50 / 75 / 100 */}
       <div className="flex justify-between text-xs text-white/50">
-        {LEVELS.map((l) => (
-          <span key={l} className={l === value ? 'font-bold' : ''} style={l === value ? { color: LEVEL_META[l].color } : {}}>
-            {LEVEL_META[l].label}
+        {MARKS.map((m) => (
+          <span
+            key={m.v}
+            className={value === m.v ? 'font-bold' : ''}
+            style={value === m.v ? { color: m.color } : {}}
+          >
+            {m.v === 0 ? '0' : m.v === 25 ? '25%' : m.v === 50 ? '50%' : m.v === 75 ? '75%' : '100%'}
           </span>
         ))}
       </div>

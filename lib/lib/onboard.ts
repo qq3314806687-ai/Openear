@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 登录流程的「创建你的口味」建号逻辑（PRD 扩展：登录体验全过程）
  * 依据问卷偏好，从歌曲库采样一条模拟听歌历史，生成新用户。
  */
@@ -8,7 +8,7 @@ import type { ArousalPref, ValencePref } from './sprite';
 
 export type MoodPref = 'positive' | 'dark' | 'mixed';
 export type EnergyPref = 'low' | 'mid' | 'high';
-export type OpennessPref = Intensity; // conservative | balanced | aggressive
+export type OpennessPref = Intensity; // 0-100 探索强度（问答档：25/50/75）
 
 export interface OnboardAnswers {
   mood: MoodPref;
@@ -28,16 +28,17 @@ const ENERGY_META: Record<EnergyPref, { label: string; name: string }> = {
   mid: { label: '中速 · 律动', name: '律动' },
   high: { label: '高能 · 跳动', name: '飙能' },
 };
-const OPENNESS_META: Record<OpennessPref, { label: string; name: string }> = {
-  conservative: { label: '稳守 · 水道熟路', name: '稳守' },
-  balanced: { label: '平衡 · 适度跨界', name: '平衡' },
-  aggressive: { label: '野探 · 大步出发', name: '野探' },
-};
+/** 探索强度问答选项（0-100 上的三个离散档） */
+const OPENNESS_OPTIONS: Array<{ value: Intensity; label: string; name: string }> = [
+  { value: 25, label: '稳守 · 水道熟路', name: '稳守' },
+  { value: 50, label: '平衡 · 适度跨界', name: '平衡' },
+  { value: 75, label: '野探 · 大步出发', name: '野探' },
+];
 
 export const PREF_OPTIONS = {
   mood: Object.entries(MOOD_META).map(([k, v]) => ({ value: k as MoodPref, ...v })),
   energy: Object.entries(ENERGY_META).map(([k, v]) => ({ value: k as EnergyPref, ...v })),
-  openness: Object.entries(OPENNESS_META).map(([k, v]) => ({ value: k as OpennessPref, ...v })),
+  openness: OPENNESS_OPTIONS,
 };
 
 /** 偏好 → 默认昵称 */

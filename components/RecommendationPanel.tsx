@@ -35,7 +35,7 @@ export default function RecommendationPanel({
       {recommendations.map((r, i) => (
         <article
           key={r.song.id}
-          className="animate-card-in group flex gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-white/10 hover:shadow-glow"
+          className="animate-card-in group lift flex gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 hover:border-violet-400/40 hover:bg-white/10"
           style={{ animationDelay: `${Math.min(i, 9) * 45}ms` }}
         >
           {/* 序号 + 色块 */}
@@ -69,7 +69,7 @@ export default function RecommendationPanel({
                     {inPlaylist.has(r.song.id) ? '✓' : '+'}
                   </button>
                 )}
-                {onPlay && r.song.audioUrl && (
+                {onPlay && (
                   <button
                     type="button"
                     onClick={() => onPlay(r.song)}

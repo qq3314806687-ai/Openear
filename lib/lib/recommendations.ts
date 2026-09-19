@@ -1,5 +1,5 @@
-/**
- * OpenEar（解茧）核心推荐引擎（纯规则，本地 JSON）
+﻿/**
+ * 闻野 OpenEar核心推荐引擎（纯规则，本地 JSON）
  * 对齐 PRD §6.3。LLM 仅用于理由润色，绝不参与本文件排序。
  */
 import type {
@@ -20,12 +20,37 @@ import {
   vaDistance,
 } from './metrics';
 
-/** 滑块档位 → 参数（PRD §3.2.1） */
-export const INTENSITY_PARAMS: Record<Intensity, IntensityParam> = {
-  conservative: { styleDistanceMax: 1, emotionStepMax: 0.15 },
-  balanced: { styleDistanceMax: 2, emotionStepMax: 0.3 },
-  aggressive: { styleDistanceMax: 4, emotionStepMax: 0.5 },
-};
+/**
+ * 探索强度 → 参数（0-100 连续插值，PRD §3.2.1）
+ * 三个锚点对应「贴身 / 平衡 / 野探」，中间线性过渡。
+ * 强度越高：技术层流派跨界越远（styleDistanceMax↑）、
+ *           情绪层离家百分位越高（emotionStepMax↑）、
+ *           行为层越敢选陌生歌（familiarityWeight↓）。
+ * emotionStepMax 现特指「离家百分位」：每个角度扇区内部，把候选按 VA 离用户平均
+ * 口味的距离从近到远排序，取第 emotionStepMax 百分位。这样强度越大散点必然离家越远、
+ * 跨象限越多，且不受 VA 平面 [0,1] 边界的绝对半径限制（每个方向量力而行）。
+ */
+const INTENSITY_ANCHORS: Array<{ i: number; p: IntensityParam }> = [
+  { i: 0, p: { styleDistanceMax: 1, emotionStepMax: 0, familiarityWeight: 0.75 } },
+  { i: 50, p: { styleDistanceMax: 2, emotionStepMax: 0.5, familiarityWeight: 0.4 } },
+  { i: 100, p: { styleDistanceMax: 4, emotionStepMax: 1, familiarityWeight: 0.1 } },
+];
+
+export function getIntensityParams(intensity: Intensity): IntensityParam {
+  const x = Math.max(0, Math.min(100, intensity));
+  // 锚点升序：找到 x 落在哪个区间 [a, b]
+  let k = INTENSITY_ANCHORS.findIndex((seg) => seg.i >= x);
+  if (k < 0) k = INTENSITY_ANCHORS.length - 1; // x 超过所有锚点 → 取最右段
+  const a = INTENSITY_ANCHORS[Math.max(0, k - 1)];
+  const b = INTENSITY_ANCHORS[k];
+  const t = a.i === b.i ? 0 : (x - a.i) / (b.i - a.i);
+  const lerp = (ka: number, kb: number) => ka + (kb - ka) * t;
+  return {
+    styleDistanceMax: lerp(a.p.styleDistanceMax, b.p.styleDistanceMax),
+    emotionStepMax: lerp(a.p.emotionStepMax, b.p.emotionStepMax),
+    familiarityWeight: lerp(a.p.familiarityWeight, b.p.familiarityWeight),
+  };
+}
 
 /** 语义化情绪词（按 VA 分桶） */
 function moodLabel(valence: number, arousal: number): string {
@@ -93,39 +118,86 @@ function generateReasonTags(
 }
 
 /**
- * 贪心平滑排序：从上一步位置出发，选「更熟悉 + 过渡更近」的歌，避免突兀跳跃。
+ * 角度辅助：把 atan2(-π..π) 归一化到 [0, 2π)，并计算两个极角的最小夹角。
  */
-function greedySmoothSort(
-  candidates: Song[],
+const TWO_PI = Math.PI * 2;
+
+function normAngle(a: number): number {
+  let x = a % TWO_PI;
+  if (x < 0) x += TWO_PI;
+  return x;
+}
+
+function angularGap(a: number, b: number): number {
+  const d = Math.abs(normAngle(a) - normAngle(b));
+  return d > Math.PI ? TWO_PI - d : d;
+}
+
+/**
+ * 放射状选点（情绪层核心）：
+ * 以「用户平均口味」为圆心，绕它一圈按角度切成 count 个扇区，每扇区选一首
+ * 「离家距离落在该扇区第 pct 百分位」的歌，从而：
+ * - 强度越大 pct 越大 → 每个方向都取更远的歌，离家越远、跨象限越多；
+ * - 按角度分桶 → 各方向都有歌，视觉上环绕发散而非扎堆；
+ * - 距离并列时按熟悉度打 tie-break：低强度选熟悉、高强度选陌生（行为层）。
+ * pct 是相对百分位（每扇区量力而行），不受 VA 平面边界的绝对半径限制，
+ * 因此 100% 一定比 75% 更远，不会出现饱和平台期。
+ */
+export function radialScatter(
+  pool: Song[],
+  userAvg: { valence: number; arousal: number },
+  pct: number,
+  familiarityWeight: number,
   user: User,
   historySongs: Song[],
-  start: { valence: number; arousal: number },
-): { song: Song; vaDistance: number }[] {
-  const remaining = [...candidates];
-  const sequence: { song: Song; vaDistance: number }[] = [];
-  let cursor = start;
-  while (remaining.length > 0) {
-    let bestIdx = 0;
-    let bestScore = Infinity;
-    for (let i = 0; i < remaining.length; i++) {
-      const c = remaining[i];
-      const transition = vaDistance(c.valence, c.arousal, cursor.valence, cursor.arousal);
-      const familiarity = getFamiliarityScore(c, user, historySongs);
-      // 越小越优先：过渡近（0.7）+ 更熟悉（0.3 想低 = 1 - 熟悉）
-      const score = transition * 0.7 + (1 - familiarity) * 0.3;
-      if (score < bestScore) {
-        bestScore = score;
-        bestIdx = i;
+  count: number,
+): Song[] {
+  if (pool.length === 0 || count <= 0) return [];
+  const p = Math.max(0, Math.min(1, pct));
+  const pts = pool.map((c) => {
+    const dv = c.valence - userAvg.valence;
+    const da = c.arousal - userAvg.arousal;
+    return {
+      c,
+      dist: Math.hypot(dv, da),
+      angle: normAngle(Math.atan2(da, dv)),
+      fam: getFamiliarityScore(c, user, historySongs),
+    };
+  });
+
+  const used = new Set<string>();
+  const chosen: Array<{ c: Song; angle: number }> = [];
+  const slot = TWO_PI / count;
+  for (let k = 0; k < count; k++) {
+    const center = slot * (k + 0.5);
+    let bucket = pts.filter(
+      (p) => !used.has(p.c.id) && angularGap(p.angle, center) <= slot / 2,
+    );
+    if (bucket.length === 0) bucket = pts.filter((p) => !used.has(p.c.id));
+    if (bucket.length === 0) break;
+
+    // 该扇区内离家距离的「第 p 百分位」目标：近(0)→远(1)
+    const ds = bucket.map((b) => b.dist).sort((a, b) => a - b);
+    const lo = ds[0];
+    const hi = ds[ds.length - 1];
+    const target = lo + (hi - lo) * p;
+
+    bucket.sort((a, b) => {
+      const ra = Math.abs(a.dist - target);
+      const rb = Math.abs(b.dist - target);
+      if (Math.abs(ra - rb) < 1e-6) {
+        // 距离并列：低强度优先熟悉（fam 大），高强度优先陌生（fam 小）
+        return familiarityWeight >= 0.5 ? b.fam - a.fam : a.fam - b.fam;
       }
-    }
-    const [chosen] = remaining.splice(bestIdx, 1);
-    sequence.push({
-      song: chosen,
-      vaDistance: vaDistance(chosen.valence, chosen.arousal, cursor.valence, cursor.arousal),
+      return ra - rb;
     });
-    cursor = { valence: chosen.valence, arousal: chosen.arousal };
+    const best = bucket[0];
+    chosen.push({ c: best.c, angle: best.angle });
+    used.add(best.c.id);
   }
-  return sequence;
+  // 按极角升序输出，保证是一条连续环绕路线（相邻点角度差最小化）
+  chosen.sort((a, b) => a.angle - b.angle);
+  return chosen.map((x) => x.c);
 }
 
 /** 主函数：以用户歌单为"已拥有"，按滑块档位输出 10 首推荐 */
@@ -135,7 +207,10 @@ export function generateRecommendations(
   options?: { focusZoneId?: string; songs?: Song[] },
 ): RecommendationBundle {
   const songs = options?.songs ?? getSongs();
-  const { styleDistanceMax, emotionStepMax } = INTENSITY_PARAMS[intensity];
+  const { styleDistanceMax, emotionStepMax, familiarityWeight } =
+    getIntensityParams(intensity);
+  const explorationPct = emotionStepMax; // 离家百分位：0=贴最近，1=取最远
+  const COUNT = 10;
 
   // 歌单即用户的真实口味：排除库内已拥有 -> 从其余歌曲里推荐
   const idSet = new Set(owned.map((o) => o.id));
@@ -159,7 +234,7 @@ export function generateRecommendations(
     };
   }
 
-  // 2) focusZone：地图点击探索 → 该区域歌词无条件入选并置顶
+  // focusZone：地图点击探索 → 该区域歌词无条件入选并置顶
   const focusZone = options?.focusZoneId
     ? findZoneByEmotionOnly(options.focusZoneId)
     : undefined;
@@ -172,60 +247,61 @@ export function generateRecommendations(
 
   const base = songs.filter((s) => !idSet.has(s.id));
 
-  // 3) 资格判定：命中焦点区任何歌都入选；否则需满足流派距离 + 情绪步长
-  const qualifies = (c: Song, styleMax: number, emoStep: number) => {
-    if (inFocus(c)) return true;
-    const minGenreDist = Math.min(...topGenres.map((g) => styleDistance(c.genre, g)));
-    return (
-      minGenreDist <= styleMax &&
-      Math.abs(c.valence - userAvg.valence) <= emoStep &&
-      Math.abs(c.arousal - userAvg.arousal) <= emoStep
-    );
-  };
+  // 技术层：流派距离达标（随强度放宽）。保底只放宽流派、绝不放情绪半径，
+  // 避免低强度因召回不足而让散点反而比高强度更远（保持远近单调）。
+  const genreOk = (c: Song) =>
+    Math.min(...topGenres.map((g) => styleDistance(c.genre, g))) <= styleDistanceMax;
+  let pool = base.filter(genreOk);
+  if (pool.length < COUNT) pool = base;
 
-  // 4) 保底召回：不足 10 首则按「流派×情绪」「流派↑」「全放开」阶梯放宽
-  const relaxStages: Array<[number, number]> = [
-    [1, 1.5],
-    [2, 2.5],
-    [3, 4],
-  ];
-  let candidates = base.filter((c) => qualifies(c, styleDistanceMax, emotionStepMax));
-  for (const [sMul, eMul] of relaxStages) {
-    if (candidates.length >= 10) break;
-    candidates = base.filter((c) => qualifies(c, styleDistanceMax * sMul, emotionStepMax * eMul));
-  }
-
-  // 5) 排序
-  let ordered;
+  // 选点（绕用户口味环形发散），扇区角度顺序输出即环绕路线
+  let ordered: Song[];
   if (focusZone) {
-    // 焦点区歌词置顶（按其到区域中心的距离排），其余再贪心平滑续接
-    const focused = candidates
+    const focused = base
       .filter((c) => inFocus(c))
       .sort(
         (a, b) =>
           vaDistance(a.valence, a.arousal, zoneCenter!.valence, zoneCenter!.arousal) -
           vaDistance(b.valence, b.arousal, zoneCenter!.valence, zoneCenter!.arousal),
       )
-      .map((song) => ({ song, vaDistance: 0 }));
-    const restCandidates = candidates.filter((c) => !inFocus(c));
-    const restOrdered = greedySmoothSort(restCandidates, user, historySongs, zoneCenter ?? userAvg);
-    ordered = [...focused, ...restOrdered];
+      .slice(0, COUNT);
+    const rest = radialScatter(
+      pool.filter((c) => !inFocus(c)),
+      userAvg,
+      explorationPct,
+      familiarityWeight,
+      user,
+      historySongs,
+      COUNT - focused.length,
+    );
+    ordered = [...focused, ...rest];
   } else {
-    ordered = greedySmoothSort(candidates, user, historySongs, userAvg);
+    ordered = radialScatter(
+      pool,
+      userAvg,
+      explorationPct,
+      familiarityWeight,
+      user,
+      historySongs,
+      COUNT,
+    );
   }
 
-  // 7) 生成理由
-  const recommendations: Recommendation[] = ordered.slice(0, 10).map(({ song, vaDistance: vd }) => ({
-    song,
-    reasonTags: generateReasonTags(song, user, historySongs, userAvg),
-    vaDistance: vd,
-    vaDistanceFromUserAvg: vaDistance(
-      song.valence,
-      song.arousal,
-      userAvg.valence,
-      userAvg.arousal,
-    ),
-  }));
+  // 生成理由；vaDistance 用相邻点欧氏距离（首点用与平均口的距离），便于展示平滑
+  const recommendations: Recommendation[] = ordered.slice(0, COUNT).map((song, i) => {
+    const prev = ordered[i - 1] ?? { valence: userAvg.valence, arousal: userAvg.arousal };
+    return {
+      song,
+      reasonTags: generateReasonTags(song, user, historySongs, userAvg),
+      vaDistance: vaDistance(song.valence, song.arousal, prev.valence, prev.arousal),
+      vaDistanceFromUserAvg: vaDistance(
+        song.valence,
+        song.arousal,
+        userAvg.valence,
+        userAvg.arousal,
+      ),
+    };
+  });
 
   return {
     intensity,

@@ -1,5 +1,5 @@
-/**
- * OpenEar（解茧）基础工具函数
+﻿/**
+ * 闻野 OpenEar基础工具函数
  * VA 距离、流派距离、熟悉度、空白区、平均 VA
  */
 import type { Song, User, BlankZone } from '../types';

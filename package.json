@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build && esbuild scripts/verify-engine.ts --bundle --platform=node --format=esm --outdir=scripts/.build --packages=external",
     "start": "next start",
-    "verify": "node scripts/.build/verify-engine.js"
+    "verify": "node scripts/.build/verify-engine.js",
+    "test": "node node_modules/esbuild/bin/esbuild scripts/recommendations.test.ts --bundle --platform=node --format=esm --outdir=scripts/.build --packages=external && node --test scripts/.build/recommendations.test.js"
   },
   "dependencies": {
     "next": "14.2.15",

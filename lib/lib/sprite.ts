@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 小精灵对话式建号 —— 题库与画像推导。
  * 5 个"探索音乐世界"的问题，每个含 4 个固定选项（value 固定）+ 隐藏的「其他」自填项。
  * 用户的回答会累积成一套音乐画像（情绪色彩 valence / 能量节奏 arousal / 流派口味 / 探索胆量），
@@ -204,7 +204,7 @@ export const SPRITE_QUESTIONS: SpriteQuestion[] = [
         reply: '稳扎稳打，先守住自己喜欢的一亩三分地。',
         valence: 0,
         arousal: 'low',
-        openness: 'conservative',
+        openness: 25, // 保守贴身（0-100 探索强度）
       },
       {
         value: 'block',
@@ -212,7 +212,7 @@ export const SPRITE_QUESTIONS: SpriteQuestion[] = [
         reply: '老地方保留，但新街区的风景也想瞄一眼。',
         valence: 0,
         arousal: 'mid',
-        openness: 'balanced',
+        openness: 50, // 平衡
       },
       {
         value: 'far',
@@ -220,7 +220,7 @@ export const SPRITE_QUESTIONS: SpriteQuestion[] = [
         reply: '勇敢的小耳朵，未知的旋律正在等你。',
         valence: 0,
         arousal: 'high',
-        openness: 'aggressive',
+        openness: 75, // 野探
       },
       {
         value: 'explain',
@@ -228,7 +228,7 @@ export const SPRITE_QUESTIONS: SpriteQuestion[] = [
         reply: '好奇心拉满，每步都要明白走向何方。',
         valence: 0,
         arousal: 'mid',
-        openness: 'balanced',
+        openness: 50, // 平衡
       },
     ],
   },
@@ -261,9 +261,9 @@ export function aggregateProfile(
   }
 
   const valence: ValencePref = valenceSum > 0 ? 1 : valenceSum < 0 ? -1 : 0;
-  // 「wild」抬升探索胆量，至少到 balanced
-  let finalOpenness: Intensity = openness ?? 'balanced';
-  if (arousal === 'wild' && finalOpenness === 'conservative') finalOpenness = 'balanced';
+  // 「wild」抬升探索胆量，至少到平衡（>25）
+  let finalOpenness: Intensity = openness ?? 50;
+  if (arousal === 'wild' && finalOpenness <= 25) finalOpenness = 50;
 
   return { valence, arousal, genres: genres.slice(0, 4), openness: finalOpenness };
 }

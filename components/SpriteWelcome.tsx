@@ -6,7 +6,7 @@
  * 让用户的回答真实地长成 TA 的口味画像，最后一键生成音乐世界。
  */
 import { useEffect, useRef, useState } from 'react';
-import type { Intensity, User } from '@/lib/types';
+import type { Intensity, Song, User } from '@/lib/types';
 import { spriteOnboard } from '@/lib/lib/onboard';
 import {
   OTHER,
@@ -14,6 +14,7 @@ import {
   aggregateProfile,
   type SpriteOption,
 } from '@/lib/lib/sprite';
+import { TODAY_MOODS, pickTodaySong, type TodayMood } from '@/lib/lib/today';
 
 interface Props {
   onLogin: (user: User, opts?: { intensity?: Intensity }) => void;
@@ -27,6 +28,7 @@ interface Chat {
 
 const GREETING = '嗨～我是小精灵 Oreo 👋 接下来我会用 5 个问题，一步步画出你的音乐宇宙。准备好了吗？';
 const DONE_LINE = '你的音乐宇宙，我好像已经画出来了 🗺️ 最后一件小事：你想怎么称呼自己？';
+const MOOD_LINE = '口味我记下了。不过在出发前——告诉我你今天是什么心情？我为你挑一首「今日主打」，当作今天探索的起点。';
 
 export default function SpriteWelcome({ onLogin }: Props) {
   const idRef = useRef(0);
@@ -35,10 +37,11 @@ export default function SpriteWelcome({ onLogin }: Props) {
 
   const [chats, setChats] = useState<Chat[]>([]);
   const [step, setStep] = useState(-1);
-  const [mode, setMode] = useState<'boot' | 'answer' | 'custom' | 'done'>('boot');
+  const [mode, setMode] = useState<'boot' | 'answer' | 'custom' | 'mood' | 'today' | 'done'>('boot');
   const [picks, setPicks] = useState<Record<string, SpriteOption>>({});
   const [customText, setCustomText] = useState('');
   const [nickname, setNickname] = useState('');
+  const [todayMood, setTodayMood] = useState<{ mood: TodayMood; song: Song } | null>(null);
 
   const push = (who: Chat['who'], text: string) =>
     setChats((c) => [...c, { id: ++idRef.current, who, text }]);
@@ -54,12 +57,22 @@ export default function SpriteWelcome({ onLogin }: Props) {
     const n = idxRef.current + 1;
     if (n >= SPRITE_QUESTIONS.length) {
       setTimeout(() => {
-        setMode('done');
-        push('sprite', DONE_LINE);
+        setMode('mood');
+        push('sprite', MOOD_LINE);
       }, 420);
     } else {
       setTimeout(() => ask(n), 420);
     }
+  };
+
+  const pickToday = (m: TodayMood) => {
+    if (mode !== 'mood') return;
+    push('me', `${m.emoji} ${m.label}`);
+    const song = pickTodaySong(m);
+    if (!song) return;
+    push('sprite', `${m.reply} 就以这首，开启今天吧。`);
+    setTodayMood({ mood: m, song });
+    setMode('today');
   };
 
   // 开场白
@@ -119,11 +132,21 @@ export default function SpriteWelcome({ onLogin }: Props) {
   const finish = () => {
     const base = aggregateProfile(picks);
     const { user, intensity } = spriteOnboard({ ...base, nickname });
+    if (todayMood) {
+      try {
+        localStorage.setItem(
+          'openear.today',
+          JSON.stringify({ moodId: todayMood.mood.id, songId: todayMood.song.id }),
+        );
+      } catch {
+        /* 忽略写入失败 */
+      }
+    }
     onLogin(user, { intensity });
   };
 
   return (
-    <section className="flex min-h-[560px] flex-col rounded-3xl border border-white/10 bg-panel p-4 backdrop-blur">
+    <section className="lift flex min-h-[560px] flex-col rounded-3xl glass p-4">
       {/* 顶栏 */}
       <div className="flex items-center gap-3 border-b border-white/10 pb-3">
         <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 shadow-glow">
@@ -144,6 +167,12 @@ export default function SpriteWelcome({ onLogin }: Props) {
               className={`h-1.5 rounded-full transition-all ${i < step ? 'w-3 bg-violet-400' : i === step ? 'w-4 bg-cyan-300' : 'w-1.5 bg-white/15'}`}
             />
           ))}
+          <span
+            title="今日心情"
+            className={`h-1.5 rounded-full transition-all ${
+              mode === 'mood' || mode === 'today' || mode === 'done' ? 'w-3 bg-rose-300' : 'w-1.5 bg-white/15'
+            }`}
+          />
         </div>
       </div>
 
@@ -176,7 +205,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
                 key={o.value}
                 type="button"
                 onClick={() => pick(o)}
-                className="block w-full max-w-[85%] rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-left text-[13px] text-white/80 transition-all hover:-translate-y-0.5 hover:border-violet-400/50 hover:bg-violet-500/10 hover:text-white focus-visible:outline-2 focus-visible:outline-violet-400"
+                className="lift block w-full max-w-[85%] rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-left text-[13px] text-white/80 hover:border-violet-400/50 hover:bg-violet-500/10 hover:text-white focus-visible:outline-2 focus-visible:outline-violet-400"
               >
                 {o.label}
               </button>
@@ -184,7 +213,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
             <button
               type="button"
               onClick={() => pick({ value: OTHER, label: '其他', reply: '', valence: 0, arousal: 'mid' })}
-              className="block w-full max-w-[85%] rounded-2xl border border-dashed border-white/15 px-3.5 py-2 text-[13px] text-white/50 transition-colors hover:border-cyan-400/50 hover:text-cyan-300"
+              className="lift block w-full max-w-[85%] rounded-2xl border border-dashed border-white/15 px-3.5 py-2 text-[13px] text-white/50 hover:border-cyan-400/50 hover:text-cyan-300"
             >
               ✍️ 其他（写下属于你的答案）
             </button>
@@ -206,9 +235,62 @@ export default function SpriteWelcome({ onLogin }: Props) {
             <button
               type="button"
               onClick={confirmCustom}
-              className="shrink-0 rounded-full bg-cyan-500/80 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-400"
+              className="btn-lift shrink-0 rounded-full bg-cyan-500/80 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-400"
             >
               发送
+            </button>
+          </div>
+        )}
+
+        {/* 今日心情 */}
+        {mode === 'mood' && (
+          <div className="animate-card-in space-y-2 pl-10">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {TODAY_MOODS.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => pickToday(m)}
+                  className="lift rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-left hover:border-violet-400/50 hover:bg-violet-500/10 focus-visible:outline-2 focus-visible:outline-violet-400"
+                >
+                  <span className="text-base">{m.emoji}</span>
+                  <span className="mt-1 block text-[13px] font-medium text-white/85">{m.label}</span>
+                  <span className="block text-[11px] text-white/45">{m.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 今日主打（今日探索起点） */}
+        {mode === 'today' && todayMood && (
+          <div className="animate-card-in space-y-3 pl-10">
+            <div className="flex items-center gap-3 rounded-2xl border border-panelEdge bg-gradient-to-br from-violet-500/15 to-cyan-500/15 p-3">
+              <span
+                className="h-11 w-11 shrink-0 rounded-xl"
+                style={{ background: todayMood.song.coverColor }}
+                aria-hidden="true"
+              />
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-widest text-white/45">
+                  今日主打 · {todayMood.mood.emoji} {todayMood.mood.label}
+                </p>
+                <p className="truncate text-sm font-semibold text-white">{todayMood.song.title}</p>
+                <p className="truncate text-xs text-white/55">
+                  {todayMood.song.artist} · {todayMood.song.genre} · {todayMood.song.bpm} BPM
+                </p>
+              </div>
+              <span className="ml-auto shrink-0 text-[11px] text-white/40">今日探索起点</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('done');
+                push('sprite', DONE_LINE);
+              }}
+              className="btn-lift rounded-2xl bg-gradient-to-r from-violet-500 to-cyan-500 px-4 py-2.5 text-sm font-bold text-white shadow-glow"
+            >
+              以它为起点，点亮我的音乐世界 →
             </button>
           </div>
         )}
@@ -227,7 +309,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
               <button
                 type="button"
                 onClick={finish}
-                className="rounded-2xl bg-gradient-to-r from-violet-500 to-cyan-500 px-4 py-2.5 text-sm font-bold text-white shadow-glow transition-transform hover:-translate-y-0.5"
+                className="btn-lift rounded-2xl bg-gradient-to-r from-violet-500 to-cyan-500 px-4 py-2.5 text-sm font-bold text-white shadow-glow"
               >
                 ✨ 点亮我的音乐世界 →
               </button>

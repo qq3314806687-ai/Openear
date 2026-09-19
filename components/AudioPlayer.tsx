@@ -24,7 +24,7 @@ export default function AudioPlayer({ song, playing, currentTime, duration, onTo
   if (!song) return null;
   const pct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/85 backdrop-blur-xl">
+    <div className="fixed inset-x-0 bottom-0 z-40 glass-raised">
       <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-5 py-3">
         <span className="h-9 w-9 shrink-0 rounded-lg shadow-inner" style={{ backgroundColor: song.coverColor }} />
         <div className="min-w-0 flex-1">
@@ -54,7 +54,7 @@ export default function AudioPlayer({ song, playing, currentTime, duration, onTo
           type="button"
           onClick={onTogglePlay}
           aria-label={playing ? '暂停' : '播放'}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-white transition-colors hover:border-cyan-400/50 hover:text-cyan-300"
+          className="btn-lift grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-white hover:border-cyan-400/50 hover:text-cyan-300"
         >
           {playing ? (
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>

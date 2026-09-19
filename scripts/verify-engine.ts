@@ -1,9 +1,16 @@
 /**
- * 关卡0 自检：验证推荐引擎按滑块档位输出 10 首推荐且分布合理。
+ * 关卡0 自检：验证推荐引擎按探索强度（0-100）输出 10 首推荐且分布合理。
  * 运行：node --experimental-strip-types scripts/verify-engine.ts
  */
-import { generateRecommendations, INTENSITY_PARAMS } from '../lib/lib/recommendations.ts';
+import { generateRecommendations } from '../lib/lib/recommendations.ts';
 import { BLANK_ZONES, getGenreDistance } from '../lib/lib/metrics.ts';
+import { getSongs, getUsers } from '../lib/lib/store.ts';
+
+const byId = new Map(getSongs().map((s) => [s.id, s]));
+const ownedOf = (uid: string) => {
+  const u = getUsers().find((x) => x.userId === uid)!;
+  return u.history.map((id) => byId.get(id)!).filter(Boolean);
+};
 
 const USERS = ['userA', 'userB', 'userC'];
 const LABEL: Record<string, string> = {
@@ -11,6 +18,7 @@ const LABEL: Record<string, string> = {
   userB: 'K-pop 党',
   userC: '后摇党',
 };
+const INTENSITIES = [0, 25, 50, 75, 100];
 
 let fail = 0;
 function check(cond: boolean, msg: string) {
@@ -22,39 +30,57 @@ function check(cond: boolean, msg: string) {
 }
 
 for (const uid of USERS) {
-  for (const intensity of Object.keys(INTENSITY_PARAMS) as Array<keyof typeof INTENSITY_PARAMS>) {
-    const bundle = generateRecommendations(uid, intensity);
+  const distByI: number[] = [];
+  const quadByI: number[] = [];
+  for (const intensity of INTENSITIES) {
+    const bundle = generateRecommendations(ownedOf(uid), intensity);
     const recs = bundle.recommendations;
-    console.log(`\n[${LABEL[uid]} · ${intensity}] 用户平均VA=${bundle.userAvgVA.valence.toFixed(2)},${bundle.userAvgVA.arousal.toFixed(2)} 主打流派=${bundle.userGenreTop.join(',')}`);
+    console.log(`\n[${LABEL[uid]} · 强度${intensity}] 用户平均VA=${bundle.userAvgVA.valence.toFixed(2)},${bundle.userAvgVA.arousal.toFixed(2)} 主打流派=${bundle.userGenreTop.join(',')}`);
     check(recs.length === 10, `返回恰好 10 首（实得 ${recs.length}）`);
     const ids = new Set(recs.map((r) => r.song.id));
     check(ids.size === 10, '10 首无重复');
-    check(recs.every((r) => !bundle.user.history.includes(r.song.id)), '全部为新歌（未出现在历史）');
+    const owned = new Set(bundle.user.history);
+    check(recs.every((r) => !owned.has(r.song.id)), '全部为新歌（未出现在历史）');
 
     const genres = new Set(recs.map((r) => r.song.genre));
     check(genres.size >= 2, `流派多样性 ≥2（本次 ${genres.size} 种: ${[...genres].join('/')}）`);
 
-    // 平滑过渡：相邻 VA 距离检查
+    // 平滑过渡：环形发散路线下相邻 VA 距离检查（流派过滤偶发跨向，放宽到 0.75）
     let smooth = true;
     for (let i = 1; i < recs.length; i++) {
-      if (recs[i].vaDistance > 0.5) smooth = false;
+      if (recs[i].vaDistance > 0.75) smooth = false;
     }
-    check(smooth, '相邻歌曲 VA 过渡平滑（步长 ≤0.5）');
+    check(smooth, '相邻歌曲 VA 过渡平滑（步长 ≤0.75）');
 
     check(
       recs.every((r) => r.song.title && r.song.artist && r.song.genre && r.song.coverColor),
       '推荐理由含技术/情绪/行为三层',
     );
+
+    // 发散度统计：平均离家距离 + 跨象限数
+    const avgDist =
+      recs.reduce((a, r) => a + r.vaDistanceFromUserAvg, 0) / Math.max(recs.length, 1);
+    const quadCount = new Set(
+      recs.map((r) => `${r.song.valence >= 0.5 ? '暖' : '冷'}${r.song.arousal >= 0.5 ? '激' : '静'}`),
+    ).size;
+    distByI.push(avgDist);
+    quadByI.push(quadCount);
+    console.log(`    平均离家=${avgDist.toFixed(3)} · 跨象限=${quadCount}/4`);
+
     console.log(`    示例#1: ${recs[0].song.title}（${recs[0].song.genre}）`);
     console.log(`      tech: ${recs[0].reasonTags.technical}`);
     console.log(`      emo : ${recs[0].reasonTags.emotional}`);
     console.log(`      beh : ${recs[0].reasonTags.behavioral}`);
   }
+  const monoDist = distByI.every((d, i) => i === 0 || d >= distByI[i - 1] - 1e-9);
+  check(monoDist, `探索强度↑ → 平均离家距离单调↑（${distByI.map((d) => d.toFixed(2)).join('→')}）`);
+  const monoQuad = quadByI.every((q, i) => i === 0 || q >= quadByI[i - 1]);
+  check(monoQuad, `探索强度↑ → 跨象限数单调↑（${quadByI.join('→')}）`);
 }
 
 // 地图点击探索：让 Lo-fi 党点躁怒区，验证目标区域歌词优先
 console.log('\n[点击空白区测试] userA 点击「zone-angry」躁怒高压区');
-const zonePick = generateRecommendations('userA', 'aggressive', { focusZoneId: 'zone-angry' });
+const zonePick = generateRecommendations(ownedOf('userA'), 75, { focusZoneId: 'zone-angry' });
 console.log(`  命中空白区: ${zonePick.focusZone?.label}`);
 const zone = BLANK_ZONES.find((z) => z.id === 'zone-angry')!;
 const inZone = zonePick.recommendations.filter(

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0f0f1a;
+  --bg: #202a24;
 }
 
 html,
@@ -12,11 +12,15 @@ body {
 }
 
 body {
-  background: radial-gradient(1200px 800px at 20% -10%, rgba(124, 58, 237, 0.18), transparent 60%),
-    radial-gradient(1000px 700px at 90% 0%, rgba(6, 182, 212, 0.12), transparent 55%),
+  background:
+    radial-gradient(1200px 820px at 18% -12%, rgba(143, 179, 166, 0.20), transparent 60%),
+    radial-gradient(900px 640px at 88% -4%, rgba(232, 161, 120, 0.10), transparent 55%),
+    radial-gradient(1000px 720px at 55% 112%, rgba(111, 147, 114, 0.16), transparent 60%),
     var(--bg);
-  color: #eceaf3;
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  color: #eef0ea;
+  /* 全局手写体：日记感（霞鹜文楷 + 各类楷体/手写回退） */
+  font-family: 'LXGW WenKai', '霞鹜文楷', 'Ma Shan Zheng', 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', 'LXGW WenKai Screen', serif;
+  font-synthesis: none;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -27,7 +31,7 @@ body {
   width: 100%;
   height: 8px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #f97316);
+  background: linear-gradient(90deg, #7ba07d, #9fbeae, #e08a5f);
   outline: none;
 }
 .intensity-range::-webkit-slider-thumb {
@@ -37,7 +41,7 @@ body {
   height: 22px;
   border-radius: 9999px;
   background: #ffffff;
-  border: 2px solid #8b5cf6;
+  border: 2px solid #6f9372;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -45,14 +49,14 @@ body {
 .intensity-range:hover::-webkit-slider-thumb,
 .intensity-range:focus-visible::-webkit-slider-thumb {
   transform: scale(1.12);
-  box-shadow: 0 2px 14px rgba(139, 92, 246, 0.55);
+  box-shadow: 0 2px 14px rgba(111, 147, 114, 0.55);
 }
 .intensity-range::-moz-range-thumb {
   width: 22px;
   height: 22px;
   border-radius: 9999px;
   background: #ffffff;
-  border: 2px solid #8b5cf6;
+  border: 2px solid #6f9372;
   cursor: pointer;
 }
 
@@ -71,7 +75,7 @@ body {
 
 /* 通用键盘焦点环（无障碍） */
 :focus-visible {
-  outline: 2px solid rgba(167, 139, 250, 0.85);
+  outline: 2px solid rgba(123, 160, 125, 0.85);
   outline-offset: 2px;
 }
 
@@ -110,12 +114,12 @@ body {
 .grid-floor-3d {
   transform-style: preserve-3d;
   background-image:
-    linear-gradient(rgba(139, 92, 246, 0.16) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 92, 246, 0.16) 1px, transparent 1px),
-    radial-gradient(circle at center, rgba(124, 58, 237, 0.12), rgba(124, 58, 237, 0.26));
+    linear-gradient(rgba(143, 179, 166, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(143, 179, 166, 0.18) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(111, 147, 114, 0.14), rgba(111, 147, 114, 0.26));
   background-size: 42px 42px, 42px 42px, 100% 100%;
   border-radius: 10px;
-  outline: 1px solid rgba(139, 92, 246, 0.25);
+  outline: 1px solid rgba(143, 179, 166, 0.28);
   outline-offset: -1px;
 }
 
@@ -160,4 +164,462 @@ body {
 @keyframes glowPulse {
   0%, 100% { transform: translate3d(-18px, calc(-1 * var(--bh, 0px)), 0) scale(0.72); opacity: 0.5; }
   50% { transform: translate3d(-18px, calc(-1 * var(--bh, 0px)), 0) scale(1.35); opacity: 1; }
+}
+
+/* ============ 玻璃拟态 ============ */
+/* 12px 高斯模糊 + 15% 透明白填充 + 1px 半透明边框（模拟玻璃边缘反光）+ 顶部内高光 */
+.glass {
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.30),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 48px -20px rgba(10, 18, 14, 0.60);
+}
+/* 更高层级玻璃：更亮边框、更深投影，用于浮在最前的面板（如底部播放器） */
+.glass-raised {
+  background: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    0 28px 70px -30px rgba(10, 18, 14, 0.75);
+}
+
+/* 汇文明朝体（子集化 + woff2，仅保留情绪地图轴标题所需字符；公有领域授权） */
+@font-face {
+  font-family: 'Huiwen Mincho';
+  src: url('/fonts/Huiwen-mincho.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 霞鹜文楷（手写楷 · 日记感；SIL OFL 授权）——由 /fonts/lxgw-wenkai/regular.css 注入 @font-face
+   分片 unicode-range 子集，按需加载，覆盖中英文与常用符号。 */
+
+/* 情绪地图轴标题等：同样走手写体，保持整页日记气质 */
+.font-huiwen {
+  font-family: 'LXGW WenKai', '霞鹜文楷', 'Ma Shan Zheng', 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', serif;
+}
+
+/* 统一玻璃模糊：把 Tailwind 默认 8px / 24px 对齐到 12px 高斯模糊 */
+.backdrop-blur,
+.backdrop-blur-xl {
+  --tw-backdrop-blur: blur(12px);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+}
+
+/* ============ 背景层（山野 ins 风）缓慢移动 ============ */
+.bg-kenburns {
+  transform: scale(1.08);
+  animation: kenburns 46s ease-in-out infinite alternate;
+}
+@keyframes kenburns {
+  0% { transform: scale(1.08) translate3d(0, 0, 0); }
+  100% { transform: scale(1.16) translate3d(-1.5%, 1.2%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-kenburns { animation: none !important; transform: scale(1.08); }
+}
+
+/* ============ 悬停卡片微交互：轻轻浮起 + 投影加深 ============ */
+.lift {
+  --lift-shadow:
+    0 18px 40px -18px rgba(0, 0, 0, 0.55),
+    0 30px 70px -28px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.28s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 0.28s ease,
+    background-color 0.28s ease;
+  will-change: transform;
+}
+.lift:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--lift-shadow);
+}
+.lift:active {
+  transform: translateY(-2px);
+}
+
+/* 按钮：轻浮 + 投影加深（用于主要操作键） */
+.btn-lift {
+  transition:
+    transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+  will-change: transform;
+}
+.btn-lift:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.55);
+}
+.btn-lift:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.5);
+}
+
+/* ============ 骨架屏：内容未加载时的灰色占位块 ============ */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
+  animation: skeletonShine 1.6s ease-in-out infinite;
+}
+@keyframes skeletonShine {
+  100% { transform: translateX(100%); }
+}
+
+/* 减少动态时：浮起/骨架统一停住 */
+@media (prefers-reduced-motion: reduce) {
+  .lift,
+  .btn-lift { transition: none; }
+  .lift:hover,
+  .lift:active,
+  .btn-lift:hover:not(:disabled),
+  .btn-lift:active:not(:disabled) { transform: none; box-shadow: none; }
+  .skeleton::after { animation: none; }
+}
+
+/* ============ 开场：日记本翻页 + 魔法光迸发 ============ */
+.opening-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 760px at 50% 18%, rgba(120, 155, 135, 0.24), transparent 60%),
+    radial-gradient(820px 560px at 12% 92%, rgba(214, 150, 105, 0.14), transparent 55%),
+    radial-gradient(900px 660px at 88% 88%, rgba(96, 125, 100, 0.18), transparent 60%),
+    #151a16;
+}
+.opening-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 45% at 50% 108%, rgba(230, 190, 140, 0.18), transparent 70%);
+  animation: openingBreathe 4s ease-in-out infinite;
+}
+@keyframes openingBreathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+/* 漂浮微尘 */
+.opening-dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 20% 28%, rgba(255, 244, 214, 0.7), transparent 70%),
+    radial-gradient(2px 2px at 68% 20%, rgba(255, 244, 214, 0.5), transparent 70%),
+    radial-gradient(1.5px 1.5px at 80% 64%, rgba(255, 244, 214, 0.6), transparent 70%),
+    radial-gradient(2px 2px at 30% 76%, rgba(255, 244, 214, 0.45), transparent 70%),
+    radial-gradient(1.5px 1.5px at 52% 12%, rgba(255, 244, 214, 0.55), transparent 70%);
+  animation: dustFloat 9s ease-in-out infinite alternate;
+}
+@keyframes dustFloat {
+  from { transform: translateY(0); }
+  to { transform: translateY(-14px); }
+}
+
+/* 日记本（摊开的书：左页 + 右页） */
+.diary-stage {
+  position: relative;
+  z-index: 1;
+}
+.diary {
+  position: relative;
+  width: min(90vw, 720px);
+  aspect-ratio: 3 / 2;
+  display: flex;
+  border-radius: 16px;
+  box-shadow:
+    0 34px 70px -30px rgba(0, 0, 0, 0.75),
+    0 18px 40px -20px rgba(0, 0, 0, 0.5);
+  animation: diaryIn 0.9s cubic-bezier(0.22, 0.9, 0.32, 1) both;
+  transform-style: preserve-3d;
+}
+@keyframes diaryIn {
+  from { opacity: 0; transform: rotateX(10deg) translateY(26px) scale(0.97); }
+  to { opacity: 1; transform: rotateX(0deg) translateY(0) scale(1); }
+}
+
+/* 绿皮书封面：入场时合着，约 0.5s 后自动翻开，露出两页内文 */
+.book-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  animation: coverOpen 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) 0.5s both;
+  pointer-events: none;
+}
+@keyframes coverOpen {
+  0% { transform: rotateY(0deg); }
+  65% { transform: rotateY(-148deg); }
+  100% { transform: rotateY(-145deg); }
+}
+.book-cover-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.book-cover-front {
+  color: #e8d9b0;
+  background:
+    radial-gradient(120% 90% at 22% 0%, rgba(255, 255, 255, 0.1), transparent 48%),
+    linear-gradient(140deg, #3c503d, #243227 55%, #1c261f);
+  box-shadow:
+    inset 0 0 0 1px rgba(218, 200, 150, 0.25),
+    inset 0 0 60px rgba(0, 0, 0, 0.38);
+}
+/* 内页内容（左页 + 右页）：封面翻开时淡入浮现 */
+.diary-page-left,
+.diary-pages {
+  opacity: 0;
+  animation: innerReveal 0.7s ease-out 1.25s both;
+}
+@keyframes innerReveal {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 左页：深色磨砂玻璃质感 · 品牌 slogan */
+.diary-page-left {
+  width: 50%;
+  border-radius: 16px 6px 6px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2px;
+  padding: 30px 26px;
+  color: #d9c99f;
+  background:
+    radial-gradient(120% 90% at 18% 0%, rgba(255, 255, 255, 0.07), transparent 45%),
+    linear-gradient(140deg, rgba(56, 72, 58, 0.88), rgba(34, 46, 37, 0.92) 55%, rgba(28, 38, 30, 0.94));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    inset -1px 0 0 rgba(0, 0, 0, 0.28),
+    inset 0 0 50px rgba(0, 0, 0, 0.35);
+}
+
+/* 右页容器：多页堆叠在右半边，依次翻 */
+.diary-pages {
+  position: relative;
+  width: 50%;
+  overflow: visible;
+}
+.diary-page {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px 16px 16px 6px;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 26px 24px;
+  overflow: hidden;
+  color: #3d3a33;
+  background:
+    linear-gradient(90deg, rgba(60, 45, 20, 0.12), transparent 6%),
+    radial-gradient(140% 120% at 100% 0%, rgba(255, 255, 255, 0.5), transparent 55%),
+    #f3e9d4;
+  box-shadow:
+    inset 1px 0 0 rgba(120, 100, 70, 0.22),
+    inset 0 0 0 1px rgba(120, 100, 70, 0.18),
+    10px 18px 44px -14px rgba(0, 0, 0, 0.6);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+/* 初始：封面页（第 1 页）在最上层，其余页隐藏在下方 */
+.diary-page-cover { z-index: 10; }
+.diary-page-flip  { z-index: 5; opacity: 0; }
+.diary-page-final { z-index: 1; opacity: 0; }
+
+/* 进入下一界面时不再翻页、不再推近，第 1 页保持定格直到整屏渐隐 */
+.opening-fade .diary-page-cover { opacity: 1; }
+
+/* 转场末尾：定格后整屏渐隐，让位给下一界面 */
+.opening-fade {
+  animation: openingFadeOut 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 1.35s both;
+}
+@keyframes openingFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+/* 手写横线纸 */
+.paper-ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 33px,
+    rgba(120, 100, 70, 0.16) 33px,
+    rgba(120, 100, 70, 0.16) 34px
+  );
+}
+
+/* 进入按钮：柔和金绿发光，轻轻呼吸 */
+.enter-btn {
+  box-shadow:
+    0 10px 30px -10px rgba(40, 60, 42, 0.7),
+    0 0 0 1px rgba(120, 140, 110, 0.25) inset;
+  animation: enterPulse 2.4s ease-in-out infinite;
+}
+@keyframes enterPulse {
+  0%, 100% { box-shadow: 0 10px 30px -10px rgba(40, 60, 42, 0.7), 0 0 0 1px rgba(120, 140, 110, 0.25) inset; }
+  50% { box-shadow: 0 12px 38px -8px rgba(96, 140, 105, 0.85), 0 0 0 1px rgba(180, 210, 160, 0.4) inset; }
+}
+
+/* 布条书签 */
+.ribbon {
+  position: absolute;
+  top: -8px;
+  right: 26px;
+  width: 16px;
+  height: 58px;
+  background: linear-gradient(180deg, #c96a5a, #a94f42);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 86%, 0 100%);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  z-index: 3;
+}
+
+/* 减少动态时：直接呈现最终状态，跳过动画 */
+@media (prefers-reduced-motion: reduce) {
+  .diary,
+  .book-cover,
+  .diary-page-left,
+  .diary-pages,
+  .diary-page-cover,
+  .diary-page-flip,
+  .diary-page-final { animation: none !important; }
+  .opening-dust, .opening-screen::after { animation: none; }
+  .book-cover { display: none; }
+  .diary-page-left,
+  .diary-pages { opacity: 1; transform: none; }
+  .diary-page-flip { display: none; }
+  .diary-page-final { opacity: 1; transform: none; }
+}
+
+/* —— 右上角全屏菜单 —— */
+/* 三横线按钮（固定右上角，玻璃拟态圆形） */
+.menu-toggle {
+  position: fixed;
+  top: 22px;
+  right: 24px;
+  z-index: 120;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.menu-toggle:hover,
+.menu-toggle:focus-visible {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.7);
+}
+.menu-toggle .menu-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: #f0e8d8;
+  margin: 2.5px 0;
+  transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.24s ease;
+}
+/* 展开时三横线切换成叉号 */
+.menu-toggle.menu-open .menu-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-toggle.menu-open .menu-bar:nth-child(2) { opacity: 0; }
+.menu-toggle.menu-open .menu-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* 全屏菜单遮罩：毛玻璃淡入 */
+.fullscreen-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: rgba(13, 20, 16, 0.55);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.42s cubic-bezier(0.22, 0.61, 0.36, 1), visibility 0.42s;
+}
+.fullscreen-menu.menu-open { opacity: 1; visibility: visible; }
+/* 菜单项：逐条淡入上浮 */
+.fullscreen-menu .menu-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.42s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 70ms);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #f0e8d8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 20px;
+}
+.fullscreen-menu.menu-open .menu-item { opacity: 1; transform: none; }
+.menu-item .menu-en {
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(240, 232, 216, 0.45);
+}
+.menu-item .menu-zh {
+  font-size: 26px;
+  transition: color 0.2s ease;
+}
+.menu-item:hover .menu-zh { color: #e8c98a; }
+.menu-item:hover .menu-en { color: rgba(240, 232, 216, 0.7); }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle .menu-bar,
+  .fullscreen-menu,
+  .fullscreen-menu .menu-item { transition-duration: 0.01ms !important; }
 }
