@@ -128,20 +128,18 @@ export default function EmotionMap({
             </g>
           ))}
 
-          {/* 象限名称（高对比描边艺术字） */}
+          {/* 象限名称（移到各象限左上角 · 较小一号） */}
           {QUADRANTS.map((q) => {
-            const cx = q.left + PLOT_W / 4;
-            const cy = q.top + PLOT_H / 4;
             return (
               <text
                 key={q.name}
-                x={cx}
-                y={cy + 3}
-                textAnchor="middle"
+                x={q.left + 10}
+                y={q.top + 20}
+                textAnchor="start"
                 fill={q.color}
-                fontSize="13"
+                fontSize="11.5"
                 fontWeight="400"
-                letterSpacing="2"
+                letterSpacing="1.5"
                 paintOrder="stroke"
                 stroke="rgba(12,18,14,0.7)"
                 strokeWidth="3"
@@ -155,27 +153,6 @@ export default function EmotionMap({
           {/* 坐标轴 + 边框 */}
           <line x1={PAD_L} y1={PAD_T + PLOT_H} x2={PAD_L + PLOT_W} y2={PAD_T + PLOT_H} stroke="rgba(255,255,255,0.22)" />
           <line x1={PAD_L} y1={PAD_T} x2={PAD_L} y2={PAD_T + PLOT_H} stroke="rgba(255,255,255,0.22)" />
-
-          {/* X 刻度 */}
-          {[0, 0.25, 0.5, 0.75, 1].map((t) => (
-            <text
-              key={t} x={PAD_L + t * PLOT_W} y={PAD_T + PLOT_H + 16}
-              textAnchor="middle" fill="rgba(255,255,255,0.8)" fontSize="10.5"
-              paintOrder="stroke" stroke="rgba(12,18,14,0.55)" strokeWidth="2"
-            >
-              {t.toFixed(2)}
-            </text>
-          ))}
-          {/* Y 刻度（暖在顶） */}
-          {[0, 0.25, 0.5, 0.75, 1].map((t) => (
-            <text
-              key={t} x={PAD_L - 8} y={PAD_T + (1 - t) * PLOT_H + 3}
-              textAnchor="end" fill="rgba(255,255,255,0.8)" fontSize="10.5"
-              paintOrder="stroke" stroke="rgba(12,18,14,0.55)" strokeWidth="2"
-            >
-              {t.toFixed(2)}
-            </text>
-          ))}
 
           {/* 轴标注（汇文明朝体 · 玻璃透色字；箭头用系统无衬线字体） */}
           <text

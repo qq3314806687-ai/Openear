@@ -50,7 +50,8 @@ export default function CursorGlow() {
       s.y += (s.ty - s.y) * kPos;
       s.hover += (s.targetHover - s.hover) * kOp;
 
-      const size = 300 + 220 * s.hover;
+      // 光斑直径：基础 90px（大幅聚焦），悬停时放大至最大 160px；亮度与渐变中心不变
+      const size = 90 + 70 * s.hover;
       const opacity = 0.55 + 0.45 * s.hover;
       spot.style.transform = `translate3d(${s.x - size / 2}px, ${s.y - size / 2}px, 0)`;
       spot.style.width = `${size}px`;
@@ -79,7 +80,7 @@ export default function CursorGlow() {
         mixBlendMode: 'screen',
         willChange: 'transform, width, height, opacity',
         background:
-          'radial-gradient(circle, rgba(255,224,172,0.34), rgba(255,214,150,0.12) 46%, transparent 70%)',
+          'radial-gradient(circle, rgba(255,224,172,0.34), rgba(255,214,150,0.12) 42%, transparent 52%)',
       }}
     />
   );
