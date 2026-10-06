@@ -14,15 +14,22 @@ interface Msg {
   text: string;
 }
 
+interface OreoContext {
+  intensity?: number;
+  avg?: { valence: number; arousal: number } | null;
+  today?: { moodLabel: string; song: Song } | null;
+}
+
 interface Props {
   playlist: Song[];
+  context?: OreoContext;
 }
 
 const GREETING = '喵～我是 Oreo，你的音乐向导。想聊聊口味、心情，或者让我再挖几首野路子？';
 
 const SUGGESTIONS = ['根据我的口味再推几首', '我的情绪边界是什么样的', '帮我挑一首今天适合的歌'];
 
-export default function CatCompanion({ playlist }: Props) {
+export default function CatCompanion({ playlist, context }: Props) {
   // 浮窗：锚点在视口右下角，x/y 为 translate3d 位移
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ sx: number; sy: number; ox: number; oy: number; moved: boolean } | null>(null);
@@ -42,13 +49,20 @@ export default function CatCompanion({ playlist }: Props) {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, busy]);
 
-  // 离线兜底：接口失败时用歌单信息拼一句规则回复
+  // 离线兜底：接口失败时用歌单 + 背景信息拼一句规则回复
   const fallback = (q: string): string => {
     if (!playlist.length) {
-      return '你的歌单还是空的，先去右上方加几首喜欢的歌，我才能替你探路呀～';
+      return '你的歌单还是空的，去地图旁的搜索卡加几首喜欢的歌，我才能替你探路呀～';
     }
     const names = playlist.slice(0, 3).map((s) => s.title).join('》《');
-    return `我先用离线的小脑瓜给你个办法：顺着《${names}》这条口味线索，把探索强度往右拨一档，就能撞见几首新野路子。稍后再问我，我会答得更细～`;
+    const todayLine = context?.today ? `今天这首《${context.today.song.title}》当起点就很合适；` : '';
+    const intensityLine = (() => {
+      const v = context?.intensity;
+      if (typeof v !== 'number') return '把探索强度往右拨一档，就能撞见几首新野路子。';
+      if (v < 34) return '把探索强度往左收一点，会撞见更多贴着旧爱的曲目。';
+      return '把探索强度再往右拨一档，就能撞见更多新野路子。';
+    })();
+    return `先用离线小脑瓜给你个办法：顺着《${names}》这条口味线索，${todayLine}${intensityLine}稍后再问我，我会答得更细～`;
   };
 
   const send = async (text: string) => {
@@ -69,7 +83,15 @@ export default function CatCompanion({ playlist }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: history,
-          context: { titles: playlist.map((s) => s.title), genres: playlist.map((s) => s.genre) },
+          context: {
+            titles: playlist.map((s) => s.title),
+            genres: playlist.map((s) => s.genre),
+            intensity: context?.intensity,
+            avg: context?.avg ?? null,
+            today: context?.today
+              ? { moodLabel: context.today.moodLabel, songTitle: context.today.song.title, songArtist: context.today.song.artist }
+              : null,
+          },
         }),
       });
       const data = await resp.json();

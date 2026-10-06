@@ -543,7 +543,16 @@ export default function Page() {
       {/* 柔和光斑跟随鼠标（含惯性），悬停可点元素时放大 */}
       <CursorGlow />
       {/* 小梨花 Oreo 浮窗伙伴（进入主界面且已登录时出现） */}
-      {phase === 'welcome' && userId && <CatCompanion playlist={playlist} />}
+      {phase === 'welcome' && userId && (
+        <CatCompanion
+          playlist={playlist}
+          context={{
+            intensity,
+            avg: bundle.userAvgVA,
+            today: todaySong && todayMood ? { moodLabel: `${todayMood.emoji} ${todayMood.label}`, song: todaySong } : null,
+          }}
+        />
+      )}
       {/* 右上角全屏菜单（最终界面） */}
       {phase === 'welcome' && <FullscreenMenu onNavigate={handleNavigate} />}
       {/* 我的歌单「全览」界面（另起一整屏；主界面的歌单面板保留为预览） */}
