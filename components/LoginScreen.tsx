@@ -11,7 +11,7 @@ import type { Intensity, User } from '@/lib/types';
 import { getUsers, getSongs } from '@/lib/lib/store';
 import SpriteWelcome from '@/components/SpriteWelcome';
 import BrandMark from '@/components/BrandMark';
-import FlowerField from '@/components/FlowerField';
+import PetalRain from '@/components/PetalRain';
 
 interface Props {
   onLogin: (user: User, opts?: { intensity?: Intensity }) => void;
@@ -29,16 +29,12 @@ export default function LoginScreen({ onLogin }: Props) {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1180px] flex-col justify-center px-5 py-10">
-      {/* 顶部花海横幅 + 品牌（花朵摇曳动态） */}
-      <header className="lift relative mb-8 overflow-hidden rounded-3xl border border-panelEdge shadow-glow">
-        <img
-          src="/flower-field-bg.png"
-          alt="粉白花海、湖泊与远山"
-          className="h-48 w-full object-cover sm:h-56"
-        />
-        <FlowerField overlay />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#dbe6ee] via-[#dbe6ee]/40 to-transparent" />
-        <div className="absolute bottom-4 left-5 right-5 flex flex-wrap items-end justify-between gap-3">
+      {/* 顶部花瓣雨横幅 + 品牌（浅色天空底，无照片背景） */}
+      <header className="lift relative mb-8 h-48 overflow-hidden rounded-3xl border border-panelEdge shadow-glow sm:h-56">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-[#dbe6ee] to-[#c9d9e8]" />
+        <PetalRain />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#dbe6ee]/70 to-transparent" />
+        <div className="absolute bottom-4 left-5 right-5 z-10 flex flex-wrap items-end justify-between gap-3">
           <BrandMark />
           <span className="font-display hidden text-sm italic text-[#0b0b0c]/85 sm:block">
             让耳朵替你，去远方吹吹风。

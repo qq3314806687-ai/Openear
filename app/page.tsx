@@ -35,7 +35,6 @@ import CursorGlow from '@/components/CursorGlow';
 import FullscreenMenu, { type MenuRoute } from '@/components/FullscreenMenu';
 import FullPlaylistScreen from '@/components/FullPlaylistScreen';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import FlowerField from '@/components/FlowerField';
 
 const SESSION_KEY = 'openear.session';
 const CUSTOM_KEY = 'openear.customUsers';
@@ -411,50 +410,47 @@ export default function Page() {
         </p>
       </div>
 
-      {/* 今日起点：今日心情的当季主打（花朵摇曳动态背景） */}
+      {/* 今日起点：今日心情的当季主打 */}
       {todayMood && todaySong && (
-        <div className="lift relative mb-5 overflow-hidden rounded-2xl border border-panelEdge">
-          <FlowerField />
-          <div className="relative z-10 flex flex-wrap items-center gap-3 bg-white/35 p-3 backdrop-blur-[2px]">
-            <span
-              className="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-xl shadow-inner"
-              style={{ background: todaySong.coverColor }}
-              aria-hidden="true"
-            >
-              {todayMood.emoji}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] uppercase tracking-widest text-ink/50">
-                今日起点 · {todayMood.label}
-              </p>
-              <p className="truncate text-sm font-semibold text-ink">
-                《{todaySong.title}》 — {todaySong.artist}
-              </p>
-              <p className="truncate text-xs text-ink/60">
-                {todaySong.genre} · {todaySong.bpm} BPM · 为今天的你挑了这首歌
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => playSong(todaySong)}
-              className="btn-lift grid h-9 w-9 shrink-0 place-items-center rounded-full bg-cyan-500/80 text-sm text-white shadow-glow"
-              title="播放今日主打"
-              aria-label="播放今日主打"
-            >
-              ▶
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleSongInPlaylist(todaySong)}
-              aria-pressed={playlistIds.includes(todaySong.id)}
-              className={`btn-lift shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                playlistIds.includes(todaySong.id) ? 'border border-rose-400/50 bg-rose-500/20 text-rose-500'
-                  : 'border border-violet-400/40 bg-white/60 text-ink hover:bg-white/80'
-              }`}
-            >
-              {playlistIds.includes(todaySong.id) ? '✓ 已在歌单' : '+ 加入歌单'}
-            </button>
+        <div className="lift mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-panelEdge bg-gradient-to-r from-violet-500/15 to-cyan-500/10 p-3">
+          <span
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-xl"
+            style={{ background: todaySong.coverColor }}
+            aria-hidden="true"
+          >
+            {todayMood.emoji}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] uppercase tracking-widest text-ink/40">
+              今日起点 · {todayMood.label}
+            </p>
+            <p className="truncate text-sm font-semibold text-ink">
+              《{todaySong.title}》 — {todaySong.artist}
+            </p>
+            <p className="truncate text-xs text-ink/50">
+              {todaySong.genre} · {todaySong.bpm} BPM · 为今天的你挑了这首歌
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={() => playSong(todaySong)}
+            className="btn-lift grid h-9 w-9 shrink-0 place-items-center rounded-full bg-cyan-500/80 text-sm text-white shadow-glow"
+            title="播放今日主打"
+            aria-label="播放今日主打"
+          >
+            ▶
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleSongInPlaylist(todaySong)}
+            aria-pressed={playlistIds.includes(todaySong.id)}
+            className={`btn-lift shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              playlistIds.includes(todaySong.id) ? 'border border-rose-400/50 bg-rose-500/20 text-rose-500'
+                : 'border border-violet-400/40 bg-violet-500/15 text-ink hover:bg-violet-500/25'
+            }`}
+          >
+            {playlistIds.includes(todaySong.id) ? '✓ 已在歌单' : '+ 加入歌单'}
+          </button>
         </div>
       )}
 
