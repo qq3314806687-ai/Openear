@@ -402,42 +402,13 @@ export default function Page() {
         <UserMenu users={users} current={user} onSwitch={switchUser} onPin={pinUserAction} onDelete={deleteUserAction} />
       </header>
 
-      {/* 晨雾原野横幅 · 花海背景（Kelo 风结构呈现） */}
-      <div className="relative mt-4 mb-5 h-44 overflow-hidden rounded-3xl border border-white/10 bg-black shadow-glow lift sm:h-52">
-        <img
-          src="/flower-field-bg.png"
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <FlowerField overlay />
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/25" />
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 px-6 text-center">
-          <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-md">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-              AI 音乐向导 · 在线
-            </span>
-          </span>
-          <p className="font-display max-w-xl text-sm italic text-white [text-shadow:0_1px_16px_rgba(0,0,0,0.55),0_0_4px_rgba(0,0,0,0.35)] sm:text-base">
-            在音浪里，遇见旷野 —— 今天想走哪条野路？
-          </p>
-          <button
-            type="button"
-            onClick={() =>
-              document
-                .getElementById('emotion-map')
-                ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-            }
-            className="group relative mt-1"
-          >
-            <span className="absolute -inset-1 rounded-full bg-white/20 opacity-0 blur-xl transition duration-500 group-hover:opacity-100" />
-            <span className="relative block rounded-full bg-white px-6 py-2 text-xs font-semibold text-black transition-all hover:scale-105 hover:bg-white/90 active:scale-95">
-              开始探索
-            </span>
-          </button>
-        </div>
+      {/* 晨雾原野横幅 */}
+      <div className="relative mt-4 mb-5 overflow-hidden rounded-3xl border border-panelEdge shadow-glow lift">
+        <img src="/hero-mist.jpg" alt="晨雾中的远山与草地" className="h-36 w-full object-cover sm:h-40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#dbe6ee] via-[#dbe6ee]/50 to-[#dbe6ee]/15" />
+        <p className="font-display absolute bottom-3 left-4 right-4 text-sm italic text-[#0b0b0c]/90">
+          在音浪里，遇见旷野 —— 今天想走哪条野路？
+        </p>
       </div>
 
       {/* 今日起点：今日心情的当季主打（花朵摇曳动态背景） */}
