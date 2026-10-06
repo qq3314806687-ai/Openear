@@ -81,12 +81,22 @@ export function registerUser(user: User): User {
   return user;
 }
 
-/** 生成不冲突的新用户 id */
+/** 生成不冲突的新用户 id（已删除/隐藏的身份 id 也占位，避免复用被删 id 导致新账号隐形） */
 export function genUserId(prefix = 'user-'): string {
-  const used = new Set(getUsers().map((u) => u.userId));
+  const prefs = loadPrefs();
+  const used = new Set<string>();
+  getUsers().forEach((u) => used.add(u.userId));
+  prefs.hidden.forEach((id) => used.add(id));
   let i = 1;
   while (used.has(`${prefix}${i}`)) i += 1;
   const id = `${prefix}${i}`;
   used.add(id);
   return id;
+}
+
+/** 取消隐藏某个身份（登录/兜底访客时恢复可见） */
+export function unhideUser(userId: string): void {
+  const prefs = loadPrefs();
+  const next = prefs.hidden.filter((id) => id !== userId);
+  if (next.length !== prefs.hidden.length) savePrefs({ ...prefs, hidden: next });
 }

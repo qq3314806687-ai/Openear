@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Intensity, Song, User } from '@/lib/types';
 import { generateRecommendations } from '@/lib/lib/recommendations';
-import { getUsers, registerUser, pinUser, removeUser } from '@/lib/lib/store';
+import { getUsers, registerUser, pinUser, removeUser, unhideUser } from '@/lib/lib/store';
 import {
   getPlaylist,
   addBuiltIn,
@@ -96,19 +96,6 @@ export default function Page() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // 情绪地图卡片高度：让搜索卡与地图卡等高、底线对齐
-  const mapBoxRef = useRef<HTMLDivElement | null>(null);
-  const [mapH, setMapH] = useState(0);
-
-  useEffect(() => {
-    const el = mapBoxRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setMapH(el.offsetHeight));
-    ro.observe(el);
-    setMapH(el.offsetHeight);
-    return () => ro.disconnect();
-  }, [phase]);
 
   // 恢复会话：重建自定义用户 + 还原上次身份
   useEffect(() => {
@@ -285,6 +272,8 @@ export default function Page() {
     if (opts?.intensity) setIntensity(opts.intensity);
     // 立即注册进运行时列表，新身份马上出现在身份列表里
     registerUser(u);
+    // 该身份若因历史遗留被隐藏，登录即恢复可见
+    unhideUser(u.userId);
     try {
       localStorage.setItem(SESSION_KEY, JSON.stringify({ userId: u.userId }));
       if (u.userId.startsWith('user-')) {
@@ -338,6 +327,8 @@ export default function Page() {
   /** 身份列表为空时创建并持久化「旅人」访客，避免页面失去当前用户 */
   const ensureGuest = () => {
     registerUser(GUEST);
+    // 访客兜底永远可见（删除后立刻恢复）
+    unhideUser(GUEST.userId);
     try {
       const arr = readCustom();
       if (!arr.some((x) => x.userId === GUEST.userId)) arr.push(GUEST);
@@ -509,9 +500,9 @@ export default function Page() {
         <IntensitySlider value={intensity} onChange={setIntensity} />
       </div>
 
-      {/* 主体：左（情绪地图）/ 右（搜索音乐），顶端对齐 + 搜索卡高度跟随地图卡 */}
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
-        <div id="emotion-map" ref={mapBoxRef} className="scroll-mt-24">
+      {/* 主体：左（情绪地图）/ 右（搜索音乐）；网格拉伸让两卡底边严格对齐 */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_1fr]">
+        <div id="emotion-map" className="scroll-mt-24">
           <MapSection
             songs={playlist}
             candidates={bundle.recommendations.map((r) => r.song)}
@@ -525,7 +516,7 @@ export default function Page() {
           />
         </div>
 
-        <div style={{ height: mapH ? `${mapH}px` : undefined }}>
+        <div>
           <SearchPanel
             playlist={playlist}
             onAddBuiltIn={addSongToPlaylist}
