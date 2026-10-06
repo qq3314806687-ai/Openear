@@ -35,7 +35,7 @@ export default function MapSection(props: Props) {
   const [open, setOpen] = useState(true);
 
   return (
-    <section className="lift rounded-3xl glass p-4">
+    <section className="lift flex h-full flex-col rounded-3xl glass p-4">
       {/* 头部 */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
         <div className="flex items-center gap-2">
@@ -95,7 +95,7 @@ export default function MapSection(props: Props) {
 
       {open && (
         songs.length === 0 ? (
-          <div className="grid h-[280px] place-items-center rounded-2xl border border-dashed border-ink/10 bg-ink/[0.02] px-8 py-6 text-center">
+          <div className="flex min-h-[280px] flex-1 items-center justify-center rounded-2xl border border-dashed border-ink/10 bg-ink/[0.02] px-8 py-6 text-center">
             <div>
               <p className="text-sm font-medium text-ink">你的情绪地图还是空白</p>
               <p className="mx-auto mt-2 max-w-[300px] text-xs leading-relaxed text-ink/45">

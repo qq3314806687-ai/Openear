@@ -80,6 +80,19 @@ export default function Page() {
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // 情绪地图卡片高度：让搜索卡与地图卡等高、底线对齐
+  const mapBoxRef = useRef<HTMLDivElement | null>(null);
+  const [mapH, setMapH] = useState(0);
+
+  useEffect(() => {
+    const el = mapBoxRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setMapH(el.offsetHeight));
+    ro.observe(el);
+    setMapH(el.offsetHeight);
+    return () => ro.disconnect();
+  }, [phase]);
+
   // 恢复会话：重建自定义用户 + 还原上次身份
   useEffect(() => {
     try {
@@ -460,9 +473,9 @@ export default function Page() {
         <IntensitySlider value={intensity} onChange={setIntensity} />
       </div>
 
-      {/* 主体：左（情绪地图）/ 右（搜索音乐），等高使底边对齐 */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_1fr]">
-        <div id="emotion-map" className="scroll-mt-24">
+      {/* 主体：左（情绪地图）/ 右（搜索音乐），顶端对齐 + 搜索卡高度跟随地图卡 */}
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
+        <div id="emotion-map" ref={mapBoxRef} className="scroll-mt-24">
           <MapSection
             songs={playlist}
             candidates={bundle.recommendations.map((r) => r.song)}
@@ -476,13 +489,15 @@ export default function Page() {
           />
         </div>
 
-        <SearchPanel
-          playlist={playlist}
-          onAddBuiltIn={addSongToPlaylist}
-          onAddCustom={addCustom}
-          onAddUploaded={addUploaded}
-          onOpenPlaylist={() => setFullList(true)}
-        />
+        <div style={{ height: mapH ? `${mapH}px` : undefined }}>
+          <SearchPanel
+            playlist={playlist}
+            onAddBuiltIn={addSongToPlaylist}
+            onAddCustom={addCustom}
+            onAddUploaded={addUploaded}
+            onOpenPlaylist={() => setFullList(true)}
+          />
+        </div>
       </div>
 
       {/* 推荐路线：通栏两列卡片 */}
