@@ -190,15 +190,15 @@ export default function DiaryPage({ onClose }: Props) {
         <AddSongSheet open={showAdd} onClose={() => setShowAdd(false)} onAnalyze={handleAnalyze} />
       </div>
 
-      {/* 右下角悬浮「+」：只保留添加新歌 */}
+      {/* 右下角悬浮「+」：只保留添加新歌；毛玻璃样式与情绪边界地图一致 */}
       {!viewing && (
         <button
           type="button"
           onClick={() => setShowAdd(true)}
           aria-label="添加新歌"
-          className="fixed bottom-8 right-8 z-20 grid h-16 w-16 place-items-center rounded-full bg-[#2B2118] text-white shadow-[0_10px_24px_rgba(43,33,24,0.35)] transition-transform duration-150 active:scale-95"
+          className="btn-lift glass fixed bottom-8 right-8 z-20 grid h-14 w-14 place-items-center rounded-full text-ink"
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
         </button>
