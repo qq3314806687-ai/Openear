@@ -719,7 +719,7 @@ body.menu-open {
 }
 @keyframes petalRainFall {
   0% { transform: translate3d(0, -20px, 0) rotate(0deg); }
-  100% { transform: translate3d(var(--drift, 30px), 280px, 0) rotate(340deg); }
+  100% { transform: translate3d(var(--drift, 30px), 90vh, 0) rotate(340deg); }
 }
 
 /* ============ 减少动态效果 ============ */

@@ -146,7 +146,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
   };
 
   return (
-    <section className="lift flex min-h-[560px] flex-col rounded-3xl glass p-4">
+    <section className="lift flex min-h-[calc(100vh-9.5rem)] flex-col rounded-3xl glass p-4 sm:p-6">
       {/* 顶栏 */}
       <div className="flex items-center gap-3 border-b border-ink/10 pb-3">
         <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl shadow-glow ring-1 ring-ink/10">
@@ -177,7 +177,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
       </div>
 
       {/* 对话区 */}
-      <div ref={scrollRef} className="mt-3 flex-1 space-y-3 overflow-y-auto pr-1" style={{ maxHeight: 360 }}>
+      <div ref={scrollRef} className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
         {chats.map((c) =>
           c.who === 'sprite' ? (
             <div key={c.id} className="flex items-start gap-2.5 animate-card-in">
