@@ -25,7 +25,7 @@ import MapSection from '@/components/MapSection';
 import CatCompanion from '@/components/CatCompanion';
 import IntensitySlider from '@/components/IntensitySlider';
 import RecommendationPanel from '@/components/RecommendationPanel';
-import PlaylistPanel from '@/components/PlaylistPanel';
+import SearchPanel from '@/components/SearchPanel';
 import AudioPlayer from '@/components/AudioPlayer';
 import LoginScreen from '@/components/LoginScreen';
 import VinylHero from '@/components/VinylHero';
@@ -366,16 +366,17 @@ export default function Page() {
           </div>
           {/* hero 骨架 */}
           <div className="mt-6 h-40 w-full rounded-3xl skeleton sm:h-44" />
-          {/* 主体骨架：左（地图 + 向导）右（歌单 + 强度 + 推荐） */}
-          <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_1fr]">
-            <div className="flex flex-col gap-5">
-              <div className="h-[360px] w-full rounded-3xl skeleton" />
-              <div className="h-[360px] w-full rounded-3xl skeleton" />
-            </div>
-            <div className="flex flex-col gap-5">
-              <div className="h-[480px] w-full rounded-3xl skeleton" />
-              <div className="h-[120px] w-full rounded-3xl skeleton" />
-              <div className="h-[420px] w-full rounded-3xl skeleton" />
+          {/* 主体骨架：强度长条 + 左（地图）右（搜索 + 推荐） */}
+          <div className="mt-6 space-y-5">
+            <div className="h-[150px] w-full rounded-3xl skeleton" />
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_1fr]">
+              <div className="flex flex-col gap-5">
+                <div className="h-[420px] w-full rounded-3xl skeleton" />
+              </div>
+              <div className="flex flex-col gap-5">
+                <div className="h-[420px] w-full rounded-3xl skeleton" />
+                <div className="h-[300px] w-full rounded-3xl skeleton" />
+              </div>
             </div>
           </div>
         </main>
@@ -454,7 +455,12 @@ export default function Page() {
         </div>
       )}
 
-      {/* 主体：左（地图 + AI 向导）/ 右面板 */}
+      {/* 探索强度：长条卡片，横跨情绪地图与搜索卡上方 */}
+      <div className="lift mb-5 rounded-3xl glass p-4">
+        <IntensitySlider value={intensity} onChange={setIntensity} />
+      </div>
+
+      {/* 主体：左（情绪地图）/ 右（搜索 + 推荐） */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_1fr]">
         {/* 左列：情绪边界地图（紧凑瀑布式） */}
         <div className="flex flex-col gap-5">
@@ -475,20 +481,13 @@ export default function Page() {
 
         {/* 右侧面板 */}
         <section className="flex flex-col gap-5">
-          <PlaylistPanel
+          <SearchPanel
             playlist={playlist}
             onAddBuiltIn={addSongToPlaylist}
             onAddCustom={addCustom}
             onAddUploaded={addUploaded}
-            onRemove={removeSong}
-            onPlay={playSong}
-            nowPlayingId={nowPlaying?.id}
-            playing={playing}
+            onOpenPlaylist={() => setFullList(true)}
           />
-
-          <div className="lift rounded-3xl glass p-4">
-            <IntensitySlider value={intensity} onChange={setIntensity} />
-          </div>
 
           <div className="lift flex min-h-0 flex-1 flex-col rounded-3xl glass p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
