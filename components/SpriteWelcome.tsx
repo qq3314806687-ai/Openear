@@ -146,7 +146,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
   };
 
   return (
-    <section className="lift flex min-h-[calc(100vh-9.5rem)] flex-col rounded-3xl glass p-4 sm:p-6">
+    <section className="flex min-h-[calc(100vh-4.5rem)] flex-col p-1 sm:p-3">
       {/* 顶栏 */}
       <div className="flex items-center gap-3 border-b border-ink/10 pb-3">
         <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl shadow-glow ring-1 ring-ink/10">
