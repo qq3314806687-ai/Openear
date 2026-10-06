@@ -1,6 +1,6 @@
 'use client';
 
-/** 音乐日记主页：手账式记录每天听的歌（openear 子功能，全屏手机壳视图） */
+/** 音乐日记：手账式记录每天听的歌（openear 子功能，桌面全宽视图） */
 import { useEffect, useState } from 'react';
 import type { DiaryEntry } from '@/lib/lib/diary';
 import {
@@ -86,9 +86,8 @@ export default function DiaryPage({ onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-[#EFE8DE]">
-      {/* 手机壳：奶油色日记列在桌面端居中 */}
-      <div className="relative mx-auto h-full w-full max-w-[430px] overflow-y-auto bg-[#F5F1EB] shadow-[0_0_0_1px_rgba(0,0,0,0.04)]">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#dbe6ee]">
+      <div className="mx-auto w-full max-w-[1200px] px-5 py-6 sm:px-8">
         {viewing ? (
           <SongDetail
             entry={viewing}
@@ -97,37 +96,31 @@ export default function DiaryPage({ onClose }: Props) {
           />
         ) : (
           <>
-            {/* 顶部栏 */}
-            <header className="flex items-center justify-between px-5 pt-4">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="返回主界面"
-                  className="grid h-8 w-8 place-items-center rounded-full bg-white text-[#6B5644] shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-transform duration-150 active:scale-95"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 12H5" />
-                    <path d="m12 19-7-7 7-7" />
-                  </svg>
-                </button>
-                <Logo />
-              </div>
-              <span className="flex items-center gap-1.5 text-[12px] font-medium text-[#B5A99B]">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <path d="M16 2v4M8 2v4M3 10h18" />
+            {/* 顶部栏：返回 + 品牌 */}
+            <header className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="返回主界面"
+                className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#6B5644] shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-transform duration-150 active:scale-95"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5" />
+                  <path d="m12 19-7-7 7-7" />
                 </svg>
-                月报
-              </span>
+              </button>
+              <Logo />
             </header>
 
-            <WeekStrip selected={selected} entries={entries} onChange={setSelected} />
+            {/* 周历条：桌面端居中限制宽度 */}
+            <div className="mx-auto mt-2 w-full max-w-[640px]">
+              <WeekStrip selected={selected} entries={entries} onChange={setSelected} />
+            </div>
 
-            {/* 日记本大卡片：横线纸 + 活页圆点 */}
-            <div className="relative mx-4 mt-3 rounded-[32px] bg-white p-5 pb-32 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-              <div aria-hidden className="paper-lines pointer-events-none absolute inset-x-5 bottom-5 top-5 rounded-xl" />
-              <div className="relative pl-5">
+            {/* 日记本大卡片：横线纸 + 活页圆点，桌面端加宽可多贴几首 */}
+            <div className="relative mt-4 rounded-[32px] bg-white p-6 pb-24 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+              <div aria-hidden className="paper-lines pointer-events-none absolute inset-x-6 bottom-6 top-6 rounded-xl" />
+              <div className="relative pl-6">
                 {/* 卡片头：日期 + 刷新 */}
                 <div className="flex items-center justify-between">
                   <p className="text-[11px] text-[#B5A99B]">
@@ -155,9 +148,9 @@ export default function DiaryPage({ onClose }: Props) {
                   <span className="text-[13px] text-[#B5A99B]">首</span>
                 </p>
 
-                {/* 贴纸墙 */}
+                {/* 贴纸墙：桌面端多列，方便一次贴更多歌 */}
                 {dayEntries.length > 0 ? (
-                  <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 justify-items-center">
+                  <div className="mt-6 grid grid-cols-2 justify-items-center gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     {dayEntries.map((e) => (
                       <StickerCard
                         key={e.id}
@@ -170,44 +163,11 @@ export default function DiaryPage({ onClose }: Props) {
                 ) : (
                   <div className="mt-10 flex flex-col items-center gap-2 pb-6 text-center">
                     <p className="text-[13px] text-[#B5A99B]">这一天还没留下歌</p>
-                    <p className="text-[12px] text-[#C4B6A4]">点下方 + 上传一张播放截图，让它「啪嗒」贴上纸吧</p>
+                    <p className="text-[12px] text-[#C4B6A4]">点右下角 + 上传一张播放截图，让它「啪嗒」贴上纸吧</p>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* 底部导航：悬浮在日记本下方 */}
-            <nav className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between px-6 pb-5">
-              <button
-                type="button"
-                aria-label="我的"
-                className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-[#2B2118] shadow-[0_4px_14px_rgba(43,33,24,0.25)] transition-transform duration-150 active:scale-95"
-              >
-                <img src="/oreo-sprite.jpg" alt="Oreo" className="h-full w-full object-cover object-[50%_22%]" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAdd(true)}
-                aria-label="添加新歌"
-                className="-mt-9 grid h-16 w-16 place-items-center rounded-full bg-[#2B2118] text-white shadow-[0_10px_24px_rgba(43,33,24,0.35)] transition-transform duration-150 active:scale-95"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                aria-label="切换视图"
-                className="grid h-11 w-11 place-items-center rounded-full bg-[#2B2118] text-white shadow-[0_4px_14px_rgba(43,33,24,0.25)] transition-transform duration-150 active:scale-95"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                  <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                  <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                  <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                </svg>
-              </button>
-            </nav>
           </>
         )}
 
@@ -229,6 +189,20 @@ export default function DiaryPage({ onClose }: Props) {
 
         <AddSongSheet open={showAdd} onClose={() => setShowAdd(false)} onAnalyze={handleAnalyze} />
       </div>
+
+      {/* 右下角悬浮「+」：只保留添加新歌 */}
+      {!viewing && (
+        <button
+          type="button"
+          onClick={() => setShowAdd(true)}
+          aria-label="添加新歌"
+          className="fixed bottom-8 right-8 z-20 grid h-16 w-16 place-items-center rounded-full bg-[#2B2118] text-white shadow-[0_10px_24px_rgba(43,33,24,0.35)] transition-transform duration-150 active:scale-95"
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }

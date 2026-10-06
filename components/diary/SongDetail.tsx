@@ -19,7 +19,7 @@ export default function SongDetail({ entry, onBack, onSaveNote }: Props) {
     : song.aiTips.personalized;
 
   return (
-    <div className="diary-in px-5 pb-10 pt-5">
+    <div className="diary-in mx-auto w-full max-w-[560px] px-5 pb-16 pt-5">
       {/* 顶部：返回 + 占位菜单 */}
       <div className="flex items-center justify-between">
         <button
@@ -76,7 +76,7 @@ export default function SongDetail({ entry, onBack, onSaveNote }: Props) {
       </div>
 
       {/* 属性条 */}
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Metric label="风格">
           <span className="block truncate">{song.genre}</span>
         </Metric>
