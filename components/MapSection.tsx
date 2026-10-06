@@ -39,9 +39,9 @@ export default function MapSection(props: Props) {
       {/* 头部 */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-white">情绪边界地图</h2>
+          <h2 className="text-sm font-semibold text-ink">情绪边界地图</h2>
           {open && songs.length > 0 && (
-            <span className="text-[11px] text-white/40">
+            <span className="text-[11px] text-ink/40">
               {songs.length} 首 · 平均 V {avg.valence.toFixed(2)} / A {avg.arousal.toFixed(2)}
             </span>
           )}
@@ -52,7 +52,7 @@ export default function MapSection(props: Props) {
             <button
               type="button"
               onClick={onClearPlaylist}
-              className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-white/50 transition-colors hover:border-rose-400/40 hover:text-rose-300"
+              className="rounded-lg border border-ink/10 px-2 py-1 text-[11px] text-ink/50 transition-colors hover:border-rose-400/40 hover:text-rose-300"
             >
               清空歌单
             </button>
@@ -63,7 +63,7 @@ export default function MapSection(props: Props) {
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-label={open ? '折叠地图' : '展开地图'}
-            className="grid h-6 w-6 place-items-center rounded-lg border border-white/10 text-white/60 transition-colors hover:text-white"
+            className="grid h-6 w-6 place-items-center rounded-lg border border-ink/10 text-ink/60 transition-colors hover:text-ink"
           >
             <svg
               width="12"
@@ -86,19 +86,19 @@ export default function MapSection(props: Props) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="flex w-full items-center justify-between rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-3 py-2.5 text-xs text-white/55 transition-colors hover:border-violet-400/40 hover:text-white"
+          className="flex w-full items-center justify-between rounded-xl border border-dashed border-ink/10 bg-ink/[0.02] px-3 py-2.5 text-xs text-ink/55 transition-colors hover:border-violet-400/40 hover:text-ink"
         >
           <span>{songs.length > 0 ? `由 ${songs.length} 首歌曲生成的情绪地图` : '情绪边界地图（空）'}</span>
-          <span className="text-white/35">展开 →</span>
+          <span className="text-ink/35">展开 →</span>
         </button>
       )}
 
       {open && (
         songs.length === 0 ? (
-          <div className="grid h-[280px] place-items-center rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-8 py-6 text-center">
+          <div className="grid h-[280px] place-items-center rounded-2xl border border-dashed border-ink/10 bg-ink/[0.02] px-8 py-6 text-center">
             <div>
-              <p className="text-sm font-medium text-white">你的情绪地图还是空白</p>
-              <p className="mx-auto mt-2 max-w-[300px] text-xs leading-relaxed text-white/45">
+              <p className="text-sm font-medium text-ink">你的情绪地图还是空白</p>
+              <p className="mx-auto mt-2 max-w-[300px] text-xs leading-relaxed text-ink/45">
                 在右侧往歌单里添加喜欢的歌，或粘贴一首音频直链参与口味分析，地图四个象限就会亮起你的情绪落点。
               </p>
             </div>

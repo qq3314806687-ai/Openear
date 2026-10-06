@@ -34,8 +34,8 @@ export default function IntensitySlider({ value, onChange }: Props) {
     <div className="space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-sm font-semibold text-white">探索强度</p>
-          <p className="text-xs text-white/50">{value} / 100 · 向左保守贴身，向右野探世界</p>
+          <p className="text-sm font-semibold text-ink">探索强度</p>
+          <p className="text-xs text-ink/50">{value} / 100 · 向左保守贴身，向右野探世界</p>
         </div>
         <span
           className="rounded-full px-3 py-1 text-sm font-bold"
@@ -57,7 +57,7 @@ export default function IntensitySlider({ value, onChange }: Props) {
       />
 
       {/* 档位刻度：0 / 25 / 50 / 75 / 100 */}
-      <div className="flex justify-between text-xs text-white/50">
+      <div className="flex justify-between text-xs text-ink/50">
         {MARKS.map((m) => (
           <span
             key={m.v}
@@ -69,7 +69,7 @@ export default function IntensitySlider({ value, onChange }: Props) {
         ))}
       </div>
 
-      <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">
+      <div className="rounded-lg border border-ink/10 bg-ink/5 px-3 py-2 text-xs text-ink/60">
         <span style={{ color: meta.color }}>{meta.desc}</span> · 拖动滑块，推荐路线会实时重新计算
       </div>
     </div>

@@ -11,7 +11,7 @@ export default function BrandMark({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="grid place-items-center rounded-2xl border border-[color:rgba(238,240,234,0.14)] bg-gradient-to-br from-violet-500/25 to-cyan-500/20 text-[color:#eef0ea] shadow-glow">
+      <span className="grid place-items-center rounded-2xl border border-ink/10 bg-gradient-to-br from-violet-500/20 to-cyan-500/15 text-ink shadow-glow">
         <svg width={compact ? 40 : 46} height={compact ? 40 : 46} viewBox="0 0 52 52" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
           {/* 新月 */}
           <path d="M40 10a6.4 6.4 0 1 0 4.6 8.2A5 5 0 0 1 40 10Z" />
@@ -25,10 +25,10 @@ export default function BrandMark({
       </span>
       <div className="leading-tight">
         <div className="flex items-baseline gap-2">
-          <span className={compact ? 'text-xl font-bold tracking-tight' : 'text-2xl font-bold tracking-tight'}>
+          <span className={`font-display ${compact ? 'text-xl font-bold tracking-tight' : 'text-2xl font-bold tracking-tight'}`}>
             闻野
           </span>
-          <span className="text-[10px] uppercase tracking-[0.35em] opacity-45">OpenEar</span>
+          <span className="font-blackletter text-[11px] uppercase tracking-[0.18em] opacity-50">OpenEar</span>
         </div>
         {tagline && <p className={compact ? 'mt-0.5 text-xs opacity-60' : 'mt-0.5 text-sm opacity-65'}>在音浪里，遇见旷野</p>}
       </div>

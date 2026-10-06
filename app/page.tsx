@@ -28,7 +28,7 @@ import RecommendationPanel from '@/components/RecommendationPanel';
 import PlaylistPanel from '@/components/PlaylistPanel';
 import AudioPlayer from '@/components/AudioPlayer';
 import LoginScreen from '@/components/LoginScreen';
-import OpeningScreen from '@/components/OpeningScreen';
+import VinylHero from '@/components/VinylHero';
 import UserMenu from '@/components/UserMenu';
 import BrandMark from '@/components/BrandMark';
 import CursorGlow from '@/components/CursorGlow';
@@ -119,10 +119,10 @@ export default function Page() {
     }
   }, [userId]);
 
-  // 转场：这本书翻页 → 定格空白页 → 整屏渐隐 → 让位给下一界面，共约 2.05s
+  // 转场：黑胶 hero 渐隐 → 让位给登录 / 主界面，共约 0.75s
   useEffect(() => {
     if (phase !== 'fade') return;
-    const t = setTimeout(() => setPhase('welcome'), 2050);
+    const t = setTimeout(() => setPhase('welcome'), 750);
     return () => clearTimeout(t);
   }, [phase]);
 
@@ -353,7 +353,7 @@ export default function Page() {
           <div className="bg-kenburns absolute inset-0">
             <img src="/hero-mist.jpg" alt="" className="h-full w-full object-cover blur-[2px]" />
           </div>
-          <div className="absolute inset-0 bg-[#202a24]/55" />
+          <div className="absolute inset-0 bg-[#dbe6ee]/70" />
         </div>
         <main className="animate-page-in relative z-10 mx-auto max-w-[1400px] px-5 py-6" aria-hidden>
           {/* 页头骨架 */}
@@ -391,7 +391,7 @@ export default function Page() {
         <div className="bg-kenburns absolute inset-0">
           <img src="/hero-mist.jpg" alt="" className="h-full w-full object-cover blur-[2px]" />
         </div>
-        <div className="absolute inset-0 bg-[#202a24]/55" />
+        <div className="absolute inset-0 bg-[#dbe6ee]/70" />
       </div>
 
       <main className="animate-page-in relative z-10 mx-auto max-w-[1400px] px-5 pb-28 pt-6">
@@ -404,8 +404,8 @@ export default function Page() {
       {/* 晨雾原野横幅 */}
       <div className="relative mt-4 mb-5 overflow-hidden rounded-3xl border border-panelEdge shadow-glow lift">
         <img src="/hero-mist.jpg" alt="晨雾中的远山与草地" className="h-36 w-full object-cover sm:h-40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#202a24] via-[#202a24]/35 to-[#202a24]/5" />
-        <p className="absolute bottom-3 left-4 right-4 text-sm italic text-[#eef0ea]/90">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#dbe6ee] via-[#dbe6ee]/50 to-[#dbe6ee]/15" />
+        <p className="font-display absolute bottom-3 left-4 right-4 text-sm italic text-[#0b0b0c]/90">
           在音浪里，遇见旷野 —— 今天想走哪条野路？
         </p>
       </div>
@@ -421,13 +421,13 @@ export default function Page() {
             {todayMood.emoji}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] uppercase tracking-widest text-white/40">
+            <p className="text-[10px] uppercase tracking-widest text-ink/40">
               今日起点 · {todayMood.label}
             </p>
-            <p className="truncate text-sm font-semibold text-white">
+            <p className="truncate text-sm font-semibold text-ink">
               《{todaySong.title}》 — {todaySong.artist}
             </p>
-            <p className="truncate text-xs text-white/50">
+            <p className="truncate text-xs text-ink/50">
               {todaySong.genre} · {todaySong.bpm} BPM · 为今天的你挑了这首歌
             </p>
           </div>
@@ -445,8 +445,8 @@ export default function Page() {
             onClick={() => toggleSongInPlaylist(todaySong)}
             aria-pressed={playlistIds.includes(todaySong.id)}
             className={`btn-lift shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-              playlistIds.includes(todaySong.id) ? 'border border-rose-400/50 bg-rose-500/20 text-rose-300'
-                : 'border border-violet-400/40 bg-violet-500/15 text-white hover:bg-violet-500/30'
+              playlistIds.includes(todaySong.id) ? 'border border-rose-400/50 bg-rose-500/20 text-rose-500'
+                : 'border border-violet-400/40 bg-violet-500/15 text-ink hover:bg-violet-500/25'
             }`}
           >
             {playlistIds.includes(todaySong.id) ? '✓ 已在歌单' : '+ 加入歌单'}
@@ -493,14 +493,14 @@ export default function Page() {
 
           <div className="lift flex min-h-0 flex-1 flex-col rounded-3xl glass p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
-              <h2 className="text-sm font-semibold text-white">推荐路线</h2>
-              <div className="flex flex-wrap gap-1 text-[10px] text-white/45">
+              <h2 className="text-sm font-semibold text-ink">推荐路线</h2>
+              <div className="flex flex-wrap gap-1 text-[10px] text-ink/45">
                 {bundle.userGenreTop.map((g) => (
-                  <span key={g} className="rounded-full border border-white/10 px-2 py-0.5">
+                  <span key={g} className="rounded-full border border-ink/10 px-2 py-0.5">
                     {g}
                   </span>
                 ))}
-                <span className="rounded-full border border-white/10 px-2 py-0.5">主打</span>
+                <span className="rounded-full border border-ink/10 px-2 py-0.5">主打</span>
               </div>
             </div>
             <div className="max-h-[600px] flex-1 overflow-y-auto pr-1">
@@ -530,7 +530,7 @@ export default function Page() {
       />
 
       {/* 页脚 */}
-      <footer className="mt-6 flex flex-wrap items-center justify-between gap-3 text-[11px] text-white/35">
+      <footer className="mt-6 flex flex-wrap items-center justify-between gap-3 text-[11px] text-ink/40">
         <span>闻野 · OpenEar</span>
         <span>在音浪里，遇见旷野。</span>
       </footer>
@@ -558,7 +558,7 @@ export default function Page() {
         />
       )}
       {(phase === 'opening' || phase === 'fade') && (
-        <OpeningScreen fading={phase === 'fade'} onEnter={() => setPhase('fade')} />
+        <VinylHero fading={phase === 'fade'} onEnter={() => setPhase('fade')} />
       )}
 
       {/* 「今日一首」回到出发点确认 */}

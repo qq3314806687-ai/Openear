@@ -148,29 +148,29 @@ export default function SpriteWelcome({ onLogin }: Props) {
   return (
     <section className="lift flex min-h-[560px] flex-col rounded-3xl glass p-4">
       {/* 顶栏 */}
-      <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+      <div className="flex items-center gap-3 border-b border-ink/10 pb-3">
         <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 shadow-glow">
           <span className="text-xl">🫧</span>
-          <span className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-emerald-400 text-[9px] font-bold text-black ring-2 ring-black">
+          <span className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-emerald-400 text-[9px] font-bold text-black ring-2 ring-white">
             AI
           </span>
         </span>
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-white">小精灵 Oreo</h2>
-          <p className="truncate text-[11px] text-white/45">正在探索你的音乐宇宙…</p>
+          <h2 className="text-sm font-semibold text-ink">小精灵 Oreo</h2>
+          <p className="truncate text-[11px] text-ink/45">正在探索你的音乐宇宙…</p>
         </div>
         {/* 进度点 */}
         <div className="ml-auto flex items-center gap-1.5">
           {SPRITE_QUESTIONS.map((q, i) => (
             <span
               key={q.id}
-              className={`h-1.5 rounded-full transition-all ${i < step ? 'w-3 bg-violet-400' : i === step ? 'w-4 bg-cyan-300' : 'w-1.5 bg-white/15'}`}
+              className={`h-1.5 rounded-full transition-all ${i < step ? 'w-3 bg-violet-400' : i === step ? 'w-4 bg-cyan-300' : 'w-1.5 bg-ink/15'}`}
             />
           ))}
           <span
             title="今日心情"
             className={`h-1.5 rounded-full transition-all ${
-              mode === 'mood' || mode === 'today' || mode === 'done' ? 'w-3 bg-rose-300' : 'w-1.5 bg-white/15'
+              mode === 'mood' || mode === 'today' || mode === 'done' ? 'w-3 bg-rose-300' : 'w-1.5 bg-ink/15'
             }`}
           />
         </div>
@@ -184,7 +184,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
               <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-500/60 to-cyan-500/60 text-sm">
                 🫧
               </span>
-              <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-white/10 bg-white/5 px-3.5 py-2.5 text-[13px] leading-relaxed text-white/85">
+              <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-ink/10 bg-ink/5 px-3.5 py-2.5 text-[13px] leading-relaxed text-ink/85">
                 {c.text}
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
                 key={o.value}
                 type="button"
                 onClick={() => pick(o)}
-                className="lift block w-full max-w-[85%] rounded-2xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-left text-[13px] text-white/80 hover:border-violet-400/50 hover:bg-violet-500/10 hover:text-white focus-visible:outline-2 focus-visible:outline-violet-400"
+                className="lift block w-full max-w-[85%] rounded-2xl border border-ink/10 bg-ink/[0.04] px-3.5 py-2.5 text-left text-[13px] text-ink/80 hover:border-violet-400/50 hover:bg-violet-500/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-violet-400"
               >
                 {o.label}
               </button>
@@ -213,7 +213,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
             <button
               type="button"
               onClick={() => pick({ value: OTHER, label: '其他', reply: '', valence: 0, arousal: 'mid' })}
-              className="lift block w-full max-w-[85%] rounded-2xl border border-dashed border-white/15 px-3.5 py-2 text-[13px] text-white/50 hover:border-cyan-400/50 hover:text-cyan-300"
+              className="lift block w-full max-w-[85%] rounded-2xl border border-dashed border-ink/15 px-3.5 py-2 text-[13px] text-ink/50 hover:border-cyan-400/50 hover:text-cyan-300"
             >
               ✍️ 其他（写下属于你的答案）
             </button>
@@ -230,7 +230,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
               onKeyDown={(e) => e.key === 'Enter' && confirmCustom()}
               placeholder={current.customPrompt}
               autoFocus
-              className="min-w-0 max-w-[85%] flex-1 rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-[13px] text-white placeholder-white/30 outline-none focus:border-violet-400/60"
+              className="min-w-0 max-w-[85%] flex-1 rounded-2xl border border-ink/10 bg-ink/5 px-3.5 py-2.5 text-[13px] text-ink placeholder-ink/30 outline-none focus:border-violet-400/60"
             />
             <button
               type="button"
@@ -251,11 +251,11 @@ export default function SpriteWelcome({ onLogin }: Props) {
                   key={m.id}
                   type="button"
                   onClick={() => pickToday(m)}
-                  className="lift rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-left hover:border-violet-400/50 hover:bg-violet-500/10 focus-visible:outline-2 focus-visible:outline-violet-400"
+                  className="lift rounded-2xl border border-ink/10 bg-ink/[0.04] p-3 text-left hover:border-violet-400/50 hover:bg-violet-500/10 focus-visible:outline-2 focus-visible:outline-violet-400"
                 >
                   <span className="text-base">{m.emoji}</span>
-                  <span className="mt-1 block text-[13px] font-medium text-white/85">{m.label}</span>
-                  <span className="block text-[11px] text-white/45">{m.desc}</span>
+                  <span className="mt-1 block text-[13px] font-medium text-ink/85">{m.label}</span>
+                  <span className="block text-[11px] text-ink/45">{m.desc}</span>
                 </button>
               ))}
             </div>
@@ -272,15 +272,15 @@ export default function SpriteWelcome({ onLogin }: Props) {
                 aria-hidden="true"
               />
               <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-white/45">
+                <p className="text-[10px] uppercase tracking-widest text-ink/45">
                   今日主打 · {todayMood.mood.emoji} {todayMood.mood.label}
                 </p>
-                <p className="truncate text-sm font-semibold text-white">{todayMood.song.title}</p>
-                <p className="truncate text-xs text-white/55">
+                <p className="truncate text-sm font-semibold text-ink">{todayMood.song.title}</p>
+                <p className="truncate text-xs text-ink/55">
                   {todayMood.song.artist} · {todayMood.song.genre} · {todayMood.song.bpm} BPM
                 </p>
               </div>
-              <span className="ml-auto shrink-0 text-[11px] text-white/40">今日探索起点</span>
+              <span className="ml-auto shrink-0 text-[11px] text-ink/40">今日探索起点</span>
             </div>
             <button
               type="button"
@@ -304,7 +304,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
                 maxLength={12}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="给自己起个名字（可留空）"
-                className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-[13px] text-white placeholder-white/30 outline-none focus:border-violet-400/60"
+                className="rounded-2xl border border-ink/10 bg-ink/5 px-3.5 py-2.5 text-[13px] text-ink placeholder-ink/30 outline-none focus:border-violet-400/60"
               />
               <button
                 type="button"
@@ -314,7 +314,7 @@ export default function SpriteWelcome({ onLogin }: Props) {
                 ✨ 点亮我的音乐世界 →
               </button>
             </div>
-            <p className="text-[11px] text-white/40">
+            <p className="text-[11px] text-ink/40">
               根据你的回答，引擎会生成属于你的听歌画像与情绪边界图。
             </p>
           </div>

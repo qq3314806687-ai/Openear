@@ -9,9 +9,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
-      <head>
-        <link rel="stylesheet" href="/fonts/lxgw-wenkai/regular.css" />
-      </head>
       <body>{children}</body>
     </html>
   );

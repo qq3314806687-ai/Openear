@@ -61,7 +61,7 @@ export default function UserMenu({ users, current, onSwitch, onPin, onDelete }: 
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white transition-colors hover:bg-white/10"
+        className="flex items-center gap-2 rounded-xl border border-ink/10 bg-ink/[0.03] px-3 py-2 text-sm text-ink transition-colors hover:bg-ink/[0.06]"
       >
         <span
           className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-violet-500/70 to-cyan-500/70 text-[11px] font-bold text-white"
@@ -92,9 +92,9 @@ export default function UserMenu({ users, current, onSwitch, onPin, onDelete }: 
       {open && (
         <div
           role="listbox"
-          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-white/15 bg-[#161c26]/95 p-1.5 shadow-glow backdrop-blur-xl"
+          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-ink/10 bg-white/90 p-1.5 shadow-glow backdrop-blur-xl"
         >
-          <p className="px-2 pb-1 pt-1 text-[10px] uppercase tracking-widest text-white/35">
+          <p className="px-2 pb-1 pt-1 text-[10px] uppercase tracking-widest text-ink/40">
             身份 · 右键管理
           </p>
           {users.map((u) => (
@@ -112,7 +112,7 @@ export default function UserMenu({ users, current, onSwitch, onPin, onDelete }: 
                 setCtx({ id: u.userId, x: e.clientX, y: e.clientY });
               }}
               className={`flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-sm transition-colors ${
-                u.userId === current.userId ? 'bg-white/10' : 'hover:bg-white/5'
+                u.userId === current.userId ? 'bg-ink/10' : 'hover:bg-ink/5'
               }`}
             >
               <span
@@ -122,13 +122,13 @@ export default function UserMenu({ users, current, onSwitch, onPin, onDelete }: 
                 {u.name.slice(0, 1)}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-white">
+                <span className="block truncate text-ink">
                   {u.userId.startsWith('user-') ? `· ${u.name}` : u.name}
                 </span>
-                <span className="block text-[10px] text-white/35">右键 · 置顶/删除</span>
+                <span className="block text-[10px] text-ink/40">右键 · 置顶/删除</span>
               </span>
               {u.userId === current.userId && (
-                <span className="shrink-0 text-[11px] text-emerald-300">当前</span>
+                <span className="shrink-0 text-[11px] text-emerald-600">当前</span>
               )}
             </button>
           ))}
@@ -139,7 +139,7 @@ export default function UserMenu({ users, current, onSwitch, onPin, onDelete }: 
       {ctx && (
         <div
           ref={menuRef}
-          className="fixed z-[160] w-[168px] overflow-hidden rounded-xl border border-white/15 bg-[#1a222c]/95 p-1 shadow-glow backdrop-blur-xl"
+          className="fixed z-[160] w-[168px] overflow-hidden rounded-xl border border-ink/10 bg-white/95 p-1 shadow-glow backdrop-blur-xl"
           style={{ left: ctxX, top: ctxY }}
         >
           <button
@@ -148,7 +148,7 @@ export default function UserMenu({ users, current, onSwitch, onPin, onDelete }: 
               onPin(ctx.id);
               setCtx(null);
             }}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-white/90 hover:bg-white/10"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink/85 hover:bg-ink/5"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
               <path d="M12 17v5M6 13l6-9 6 9H6Z" />
@@ -162,7 +162,7 @@ export default function UserMenu({ users, current, onSwitch, onPin, onDelete }: 
               onDelete(ctx.id);
               setCtx(null);
             }}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-300 hover:bg-rose-500/15"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-500/15"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
               <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />

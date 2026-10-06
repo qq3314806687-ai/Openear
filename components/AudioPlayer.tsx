@@ -30,10 +30,10 @@ export default function AudioPlayer({ song, playing, currentTime, duration, onTo
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="truncate text-xs font-semibold text-white">{song.title}</span>
-              <span className="truncate text-[11px] text-white/45">{song.artist}</span>
+              <span className="truncate text-xs font-semibold text-ink">{song.title}</span>
+              <span className="truncate text-[11px] text-ink/45">{song.artist}</span>
             </div>
-            <span className="shrink-0 text-[10px] text-white/40">{fmt(currentTime)} / {fmt(duration)}</span>
+            <span className="shrink-0 text-[10px] text-ink/40">{fmt(currentTime)} / {fmt(duration)}</span>
           </div>
           <button
             type="button"
@@ -42,11 +42,11 @@ export default function AudioPlayer({ song, playing, currentTime, duration, onTo
               const ratio = (e.clientX - rect.left) / rect.width;
               onSeek(ratio * duration);
             }}
-            className="group relative mt-1.5 block h-1.5 w-full rounded-full bg-white/10"
+            className="group relative mt-1.5 block h-1.5 w-full rounded-full bg-ink/10"
             aria-label="播放进度"
           >
             <span className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" style={{ width: `${pct}%` }} />
-            <span className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white opacity-0 shadow group-hover:opacity-100" style={{ left: `calc(${pct}% - 6px)` }} />
+            <span className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-ink opacity-0 shadow group-hover:opacity-100" style={{ left: `calc(${pct}% - 6px)` }} />
           </button>
         </div>
 
@@ -54,7 +54,7 @@ export default function AudioPlayer({ song, playing, currentTime, duration, onTo
           type="button"
           onClick={onTogglePlay}
           aria-label={playing ? '暂停' : '播放'}
-          className="btn-lift grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-white hover:border-cyan-400/50 hover:text-cyan-300"
+          className="btn-lift grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/15 text-ink hover:border-cyan-400/50 hover:text-cyan-600"
         >
           {playing ? (
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg>
@@ -66,7 +66,7 @@ export default function AudioPlayer({ song, playing, currentTime, duration, onTo
           type="button"
           onClick={onClose}
           aria-label="关闭播放器"
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-white/40 transition-colors hover:text-white"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink/40 transition-colors hover:text-ink"
         >
           ×
         </button>

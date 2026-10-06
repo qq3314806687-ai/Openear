@@ -93,7 +93,7 @@ export default function EmotionMap({
           </defs>
 
           {/* 绘图区底 */}
-          <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} rx={12} fill="rgba(255,255,255,0.02)" />
+          <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} rx={12} fill="rgba(11,11,12,0.02)" />
 
           {/* 四象限底色 */}
           <g clipPath="url(#plotClip)">
@@ -111,19 +111,19 @@ export default function EmotionMap({
           </g>
 
           {/* 象限分隔线 + 中轴十字 */}
-          <line x1={MID_X} y1={PAD_T} x2={MID_X} y2={PAD_T + PLOT_H} stroke="rgba(255,255,255,0.16)" strokeDasharray="4 4" />
-          <line x1={PAD_L} y1={MID_Y} x2={PAD_L + PLOT_W} y2={MID_Y} stroke="rgba(255,255,255,0.16)" strokeDasharray="4 4" />
+          <line x1={MID_X} y1={PAD_T} x2={MID_X} y2={PAD_T + PLOT_H} stroke="rgba(11,11,12,0.14)" strokeDasharray="4 4" />
+          <line x1={PAD_L} y1={MID_Y} x2={PAD_L + PLOT_W} y2={MID_Y} stroke="rgba(11,11,12,0.14)" strokeDasharray="4 4" />
 
           {/* 辅助网格 */}
           {[0.25, 0.75].map((t) => (
             <g key={`v${t}`}>
               <line
                 x1={PAD_L + t * PLOT_W} y1={PAD_T} x2={PAD_L + t * PLOT_W} y2={PAD_T + PLOT_H}
-                stroke="rgba(255,255,255,0.06)"
+                stroke="rgba(11,11,12,0.05)"
               />
               <line
                 x1={PAD_L} y1={PAD_T + (1 - t) * PLOT_H} x2={PAD_L + PLOT_W} y2={PAD_T + (1 - t) * PLOT_H}
-                stroke="rgba(255,255,255,0.06)"
+                stroke="rgba(11,11,12,0.05)"
               />
             </g>
           ))}
@@ -141,7 +141,7 @@ export default function EmotionMap({
                 fontWeight="400"
                 letterSpacing="1.5"
                 paintOrder="stroke"
-                stroke="rgba(12,18,14,0.7)"
+                stroke="rgba(11,11,12,0.5)"
                 strokeWidth="3"
                 style={{ pointerEvents: 'none' }}
               >
@@ -151,12 +151,12 @@ export default function EmotionMap({
           })}
 
           {/* 坐标轴 + 边框 */}
-          <line x1={PAD_L} y1={PAD_T + PLOT_H} x2={PAD_L + PLOT_W} y2={PAD_T + PLOT_H} stroke="rgba(255,255,255,0.22)" />
-          <line x1={PAD_L} y1={PAD_T} x2={PAD_L} y2={PAD_T + PLOT_H} stroke="rgba(255,255,255,0.22)" />
+          <line x1={PAD_L} y1={PAD_T + PLOT_H} x2={PAD_L + PLOT_W} y2={PAD_T + PLOT_H} stroke="rgba(11,11,12,0.25)" />
+          <line x1={PAD_L} y1={PAD_T} x2={PAD_L} y2={PAD_T + PLOT_H} stroke="rgba(11,11,12,0.25)" />
 
           {/* 轴标注（汇文明朝体 · 玻璃透色字；箭头用系统无衬线字体） */}
           <text
-            x={PAD_L + PLOT_W / 2} y={H - 5} textAnchor="middle" fill="rgba(255,255,255,0.6)" fontSize="13"
+            x={PAD_L + PLOT_W / 2} y={H - 5} textAnchor="middle" fill="rgba(11,11,12,0.55)" fontSize="13"
             fontWeight="400" letterSpacing="1"
             className="font-huiwen"
           >
@@ -165,7 +165,7 @@ export default function EmotionMap({
             <tspan>激烈</tspan>
           </text>
           <text
-            x={16} y={PAD_T + PLOT_H / 2} textAnchor="middle" fill="rgba(255,255,255,0.6)" fontSize="13"
+            x={16} y={PAD_T + PLOT_H / 2} textAnchor="middle" fill="rgba(11,11,12,0.55)" fontSize="13"
             fontWeight="400" letterSpacing="1"
             transform={`rotate(-90 16 ${PAD_T + PLOT_H / 2})`}
             className="font-huiwen"
@@ -191,7 +191,7 @@ export default function EmotionMap({
                   stroke={lit ? '#c4b5fd' : CANDIDATE_COLOR}
                   strokeWidth={1.2} strokeDasharray="3 2.5" strokeOpacity={lit ? 1 : 0.9}
                 />
-                <circle cx={xOf(s)} cy={yOf(s)} r={6.5} fill="none" stroke={activeId === s.id ? '#ffffff' : CANDIDATE_COLOR} strokeWidth={2} />
+                <circle cx={xOf(s)} cy={yOf(s)} r={6.5} fill="none" stroke={activeId === s.id ? '#0b0b0c' : CANDIDATE_COLOR} strokeWidth={2} />
               </g>
             );
           })}
@@ -205,7 +205,7 @@ export default function EmotionMap({
               onMouseEnter={(e) => { e.stopPropagation(); setHoverId(s.id); }}
               onMouseLeave={() => setHoverId((h) => (h === s.id ? null : h))}
             >
-              <circle cx={xOf(s)} cy={yOf(s)} r={9} fill={s.coverColor} stroke="rgba(255,255,255,0.92)" strokeWidth={1.5} />
+              <circle cx={xOf(s)} cy={yOf(s)} r={9} fill={s.coverColor} stroke="rgba(11,11,12,0.4)" strokeWidth={1.5} />
               <circle
                 cx={xOf(s)} cy={yOf(s)} r={9} fill="none"
                 stroke={hoverId === s.id || activeId === s.id ? s.coverColor : 'transparent'}
@@ -218,7 +218,7 @@ export default function EmotionMap({
         {/* 预览卡（点击点后常驻；点按钮执行后关闭） */}
         {active && (
           <div
-            className="absolute z-10 w-56 rounded-xl border border-white/10 bg-black/90 px-3 py-2.5 text-xs shadow-glow pointer-events-auto"
+            className="glass absolute z-10 w-56 rounded-xl px-3 py-2.5 text-xs pointer-events-auto"
             style={{
               left: `${cardLeftPx}px`,
               top: `${(active.y / H) * 100}%`,
@@ -226,19 +226,19 @@ export default function EmotionMap({
             }}
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="truncate font-medium text-white">{active.song.title}</span>
+              <span className="truncate font-medium text-ink">{active.song.title}</span>
               {candidateIds.has(active.song.id) && (
-                <span className="shrink-0 rounded-full border border-violet-400/40 bg-violet-500/20 px-1.5 py-0.5 text-[10px] text-violet-300">
+                <span className="shrink-0 rounded-full border border-violet-400/40 bg-violet-500/20 px-1.5 py-0.5 text-[10px] text-violet-600">
                   推荐
                 </span>
               )}
             </div>
-            <div className="text-white/60">{active.song.artist}</div>
-            <div className="mt-1 flex items-center gap-1 text-white/70">
+            <div className="text-ink/55">{active.song.artist}</div>
+            <div className="mt-1 flex items-center gap-1 text-ink/65">
               <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: active.song.coverColor }} />
               {active.song.genre} · BPM {active.song.bpm}
             </div>
-            <div className="mt-0.5 text-white/50">
+            <div className="mt-0.5 text-ink/45">
               能量 {active.song.arousal.toFixed(2)} · 色彩 {active.song.valence.toFixed(2)}
             </div>
 
@@ -249,8 +249,8 @@ export default function EmotionMap({
                 aria-label={isThisPlaying ? '暂停' : '试听'}
                 className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-1.5 font-semibold transition-colors ${
                   isThisPlaying
-                    ? 'border-cyan-400/60 bg-cyan-500/30 text-cyan-100'
-                    : 'border-cyan-400/40 bg-cyan-500/15 text-cyan-200 hover:bg-cyan-500/30'
+                    ? 'border-cyan-500/60 bg-cyan-500/20 text-cyan-700'
+                    : 'border-cyan-500/40 bg-cyan-500/10 text-cyan-700 hover:bg-cyan-500/20'
                 }`}
               >
                 {isThisPlaying ? <PauseGlyph /> : <PlayGlyph />}
@@ -264,8 +264,8 @@ export default function EmotionMap({
                   title={inPlaylist.has(active.song.id) ? '已在歌单，点击移出' : '加入我的歌单'}
                   className={`flex flex-1 items-center justify-center gap-1 rounded-lg border py-1.5 font-semibold transition-colors ${
                     inPlaylist.has(active.song.id)
-                      ? 'border-emerald-400/50 bg-emerald-500/15 text-emerald-300'
-                      : 'border-violet-400/40 bg-violet-500/15 text-white hover:bg-violet-500/30'
+                      ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-700'
+                      : 'border-violet-400/40 bg-violet-500/10 text-violet-700 hover:bg-violet-500/20'
                   }`}
                 >
                   {inPlaylist.has(active.song.id) ? '✓ 已加入' : '加入歌单'}
@@ -277,9 +277,9 @@ export default function EmotionMap({
       </div>
 
       {/* 图例 */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-xs text-white/75">
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-xs text-ink/60">
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-cyan-400 ring-1 ring-white" />
+          <span className="h-2.5 w-2.5 rounded-full bg-cyan-500 ring-1 ring-ink/30" />
           已加入歌单
         </span>
         <span className="inline-flex items-center gap-1.5">

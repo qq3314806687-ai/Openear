@@ -26,28 +26,28 @@ export default function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[150] grid place-items-center bg-black/45 backdrop-blur-sm"
+      className="fixed inset-0 z-[150] grid place-items-center bg-ink/30 backdrop-blur-sm"
       onClick={onCancel}
     >
       <div
         role="dialog"
         aria-modal="true"
-        className="animate-card-in w-[min(88vw,380px)] rounded-3xl border border-white/15 bg-[#1c2621]/90 p-6 shadow-glow backdrop-blur-xl"
+        className="animate-card-in glass w-[min(88vw,380px)] rounded-3xl p-6"
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
-          <h3 className="text-lg text-[#f0e8d8]" style={{ fontFamily: 'inherit' }}>
+          <h3 className="text-lg text-ink" style={{ fontFamily: 'inherit' }}>
             {title}
           </h3>
         )}
         {message && (
-          <p className="mt-3 text-sm leading-relaxed text-[#c9c4b6]">{message}</p>
+          <p className="mt-3 text-sm leading-relaxed text-ink/60">{message}</p>
         )}
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="btn-lift rounded-full bg-white/10 px-5 py-2 text-sm text-white/85 hover:bg-white/20"
+            className="btn-lift rounded-full bg-ink/5 px-5 py-2 text-sm text-ink/80 hover:bg-ink/10"
           >
             {cancelText}
           </button>

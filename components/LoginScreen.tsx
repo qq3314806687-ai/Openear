@@ -35,10 +35,10 @@ export default function LoginScreen({ onLogin }: Props) {
           alt="晨雾中的远山与草地"
           className="h-48 w-full object-cover sm:h-56"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#202a24] via-[#202a24]/35 to-[#202a24]/5" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#dbe6ee] via-[#dbe6ee]/45 to-[#dbe6ee]/10" />
         <div className="absolute bottom-4 left-5 right-5 flex flex-wrap items-end justify-between gap-3">
           <BrandMark />
-          <span className="hidden text-sm italic text-[#eef0ea]/85 sm:block">
+          <span className="font-display hidden text-sm italic text-[#0b0b0c]/80 sm:block">
             让耳朵替你，去远方吹吹风。
           </span>
         </div>
@@ -50,8 +50,8 @@ export default function LoginScreen({ onLogin }: Props) {
 
         {/* 侧栏：演示身份快速体验 */}
         <aside className="lift flex flex-col rounded-3xl glass p-5">
-          <h2 className="text-sm font-semibold text-white">想跳过问答？</h2>
-          <p className="mt-0.5 text-xs text-white/50">直接用一个演示身份，看野路子怎么替他们各自开路。</p>
+          <h2 className="text-sm font-semibold text-ink">想跳过问答？</h2>
+          <p className="mt-0.5 text-xs text-ink/50">直接用一个演示身份，看野路子怎么替他们各自开路。</p>
 
           <div className="mt-4 flex flex-col gap-3">
             {demoUsers.map((u) => (
@@ -59,31 +59,31 @@ export default function LoginScreen({ onLogin }: Props) {
                 key={u.userId}
                 type="button"
                 onClick={() => onLogin(u)}
-                className="group lift flex items-center gap-3 rounded-2xl border border-panelEdge bg-white/5 p-3 text-left hover:border-violet-400/50 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+                className="group lift flex items-center gap-3 rounded-2xl border border-panelEdge bg-ink/[0.03] p-3 text-left hover:border-violet-400/50 hover:bg-ink/[0.06] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500"
               >
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-500/40 to-cyan-500/40 text-sm font-bold text-white">
                   {u.name.slice(0, 1)}
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-white">{u.name}</span>
-                  <span className="block truncate text-xs text-white/50">
+                  <span className="block truncate text-sm font-semibold text-ink">{u.name}</span>
+                  <span className="block truncate text-xs text-ink/50">
                     {PERSONA_INTRO[u.userId] ?? '探索你的口味'}
                   </span>
                 </span>
-                <span className="ml-auto text-sm text-white/30 transition-colors group-hover:text-violet-300">
+                <span className="ml-auto text-sm text-ink/30 transition-colors group-hover:text-violet-500">
                   进入 →
                 </span>
               </button>
             ))}
           </div>
 
-          <p className="mt-5 border-t border-panelEdge pt-4 text-[11px] leading-relaxed text-white/40">
+          <p className="mt-5 border-t border-panelEdge pt-4 text-[11px] leading-relaxed text-ink/40">
             所有数据都留在你的浏览器里 · 共 {songCount} 首野路子可探索。
           </p>
         </aside>
       </div>
 
-      <footer className="mt-8 text-center text-[11px] text-white/30">
+      <footer className="mt-8 text-center text-[11px] text-ink/35">
         闻野 OpenEar · 让每一种情绪，都有一处旷野可去
       </footer>
     </main>

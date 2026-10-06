@@ -77,16 +77,16 @@ export default function AiChat({ playlist }: Props) {
   return (
     <section className="lift flex min-h-[360px] flex-1 flex-col rounded-3xl glass p-4">
       {/* 头 */}
-      <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+      <div className="flex items-center gap-3 border-b border-ink/10 pb-3">
         <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 shadow-glow">
           <span className="text-lg">🫧</span>
-          <span className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-emerald-400 text-[8px] font-bold text-black ring-2 ring-black">
+          <span className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-emerald-400 text-[8px] font-bold text-black ring-2 ring-white">
             AI
           </span>
         </span>
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-white">Oreo · 音乐向导</h2>
-          <p className="truncate text-[11px] text-white/45">聊聊口味、情绪，或让它再挖几首野路子</p>
+          <h2 className="text-sm font-semibold text-ink">Oreo · 音乐向导</h2>
+          <p className="truncate text-[11px] text-ink/45">聊聊口味、情绪，或让它再挖几首野路子</p>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ export default function AiChat({ playlist }: Props) {
               <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-500/60 to-cyan-500/60 text-xs">
                 🫧
               </span>
-              <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-white/10 bg-white/5 px-3.5 py-2.5 text-[13px] leading-relaxed text-white/85">
+              <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-ink/10 bg-ink/5 px-3.5 py-2.5 text-[13px] leading-relaxed text-ink/85">
                 {m.text}
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function AiChat({ playlist }: Props) {
             <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-500/60 to-cyan-500/60 text-xs">
               🫧
             </span>
-            <div className="max-w-[85%] flex-1 space-y-2 rounded-2xl rounded-tl-sm border border-white/10 bg-white/5 px-3.5 py-2.5">
+            <div className="max-w-[85%] flex-1 space-y-2 rounded-2xl rounded-tl-sm border border-ink/10 bg-ink/5 px-3.5 py-2.5">
               <div className="h-2.5 w-4/5 rounded-full skeleton" />
               <div className="h-2.5 w-3/5 rounded-full skeleton" />
             </div>
@@ -132,7 +132,7 @@ export default function AiChat({ playlist }: Props) {
               key={s}
               type="button"
               onClick={() => send(s)}
-              className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-white/70 transition-colors hover:border-violet-400/50 hover:bg-violet-500/10 hover:text-white"
+              className="rounded-full border border-ink/10 bg-ink/[0.04] px-3 py-1 text-[11px] text-ink/70 transition-colors hover:border-violet-400/50 hover:bg-violet-500/10 hover:text-ink"
             >
               {s}
             </button>
@@ -152,7 +152,7 @@ export default function AiChat({ playlist }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="问点什么，比如「今天适合听什么」…"
-          className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/30 outline-none focus:border-violet-400/50"
+          className="min-w-0 flex-1 rounded-xl border border-ink/10 bg-ink/5 px-3 py-2 text-xs text-ink placeholder-ink/30 outline-none focus:border-violet-400/50"
         />
         <button
           type="submit"
