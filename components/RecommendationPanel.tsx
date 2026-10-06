@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * 推荐路线列表：每首歌一张卡片（PRD §3.2.3）
- * 左侧色块、歌名/歌手/流派 Badge、底部三层理由 Chip。
+ * 推荐路线列表：两列紧凑网格（PRD §3.2.3 通栏卡片）
+ * 每格：封面色块 + 歌名/歌手 + 流派 Badge + 加入/试听 + 一句话理由 + 三层理由 Chip。
  */
 import type { Recommendation } from '@/lib/types';
 
@@ -27,40 +27,55 @@ export default function RecommendationPanel({
 }: Props) {
   const inPlaylist = new Set(playlistIds);
   return (
-    <div className="flex flex-col gap-3">
+    <div className="relative grid grid-cols-1 gap-3 md:grid-cols-2">
+      {/* 两列之间的虚线分隔（与情绪地图同风格的轻分隔） */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-1 left-1/2 hidden -translate-x-1/2 border-l border-dashed border-ink/15 md:block"
+      />
+
       {recommendations.length === 0 && (
-        <p className="py-10 text-center text-sm text-ink/40">调整强度或点击空白区，生成你的探索路线…</p>
+        <p className="col-span-full py-10 text-center text-sm text-ink/40">调整强度或点击空白区，生成你的探索路线…</p>
       )}
 
       {recommendations.map((r, i) => (
         <article
           key={r.song.id}
-          className="animate-card-in group lift flex gap-3 rounded-2xl border border-ink/10 bg-ink/5 p-3 hover:border-violet-400/40 hover:bg-ink/10"
+          className="animate-card-in group lift flex gap-2.5 rounded-2xl border border-ink/10 bg-ink/5 p-3 hover:border-violet-400/40 hover:bg-ink/10"
           style={{ animationDelay: `${Math.min(i, 9) * 45}ms` }}
         >
-          {/* 序号 + 色块 */}
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-xs font-bold text-ink/40">{i + 1}</span>
-            <span
-              className="block h-11 w-11 shrink-0 rounded-xl shadow-inner"
-              style={{ background: r.song.coverColor }}
-              aria-hidden="true"
-            />
-          </div>
+          {/* 封面色块 */}
+          <span
+            className="block h-12 w-12 shrink-0 rounded-xl shadow-inner"
+            style={{ background: r.song.coverColor }}
+            aria-hidden="true"
+          />
 
           {/* 主体 */}
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-baseline gap-x-2">
-              <h4 className="text-sm font-semibold text-ink">{r.song.title}</h4>
-              <span className="truncate text-xs text-ink/50">{r.song.artist}</span>
-              <div className="ml-auto flex items-center gap-2">
+            <div className="flex min-w-0 items-baseline gap-x-1.5">
+              <span className="text-[10px] font-semibold text-ink/30">{i + 1}</span>
+              <h4 className="min-w-0 truncate text-[13px] font-semibold text-ink">{r.song.title}</h4>
+              <span className="min-w-0 truncate text-[10px] text-ink/50">{r.song.artist}</span>
+            </div>
+
+            <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+              <span className="inline-flex max-w-full items-center gap-1 rounded-full border border-ink/10 px-1.5 py-0.5 text-[9px] text-ink/55">
+                <span className="h-1 w-1 shrink-0 rounded-full" style={{ backgroundColor: r.song.coverColor }} />
+                <span className="truncate">{r.song.genre} · {r.song.bpm}</span>
+              </span>
+              <span className="text-[9px] text-cyan-600/70">VA {r.vaDistanceFromUserAvg.toFixed(2)}</span>
+              {r.song.genre !== userGenreTop[0] && (
+                <span className="rounded-full bg-fuchsia-500/15 px-1.5 py-0.5 text-[9px] text-fuchsia-500">跨流派</span>
+              )}
+              <span className="ml-auto flex items-center gap-1">
                 {onTogglePlaylist && (
                   <button
                     type="button"
                     onClick={() => onTogglePlaylist(r.song)}
                     aria-pressed={inPlaylist.has(r.song.id)}
                     title={inPlaylist.has(r.song.id) ? '已在歌单，点击移出' : '加入我的歌单'}
-                    className={`grid h-6 w-6 place-items-center rounded-lg border text-sm leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 ${
+                    className={`grid h-5 w-5 place-items-center rounded-md border text-[11px] leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 ${
                       inPlaylist.has(r.song.id)
                         ? 'border-rose-400/50 bg-rose-500/20 text-rose-500'
                         : 'border-ink/10 text-ink/35 hover:border-violet-400/40 hover:text-ink'
@@ -75,40 +90,23 @@ export default function RecommendationPanel({
                     onClick={() => onPlay(r.song)}
                     title="试听"
                     aria-label="试听"
-                    className="grid h-6 w-6 place-items-center rounded-full border border-ink/10 text-ink/60 transition-colors hover:border-cyan-400/50 hover:text-cyan-600"
+                    className="grid h-5 w-5 place-items-center rounded-full border border-ink/10 text-ink/60 transition-colors hover:border-cyan-400/50 hover:text-cyan-600"
                   >
                     <PlayGlyph />
                   </button>
                 )}
-                <span className="inline-flex max-w-full items-center gap-1 rounded-full border border-ink/10 px-2 py-0.5 text-[10px] text-ink/60">
-                  <span
-                    className="h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: r.song.coverColor }}
-                  />
-                  <span className="truncate">{r.song.genre} · BPM {r.song.bpm}</span>
-                </span>
-              </div>
-            </div>
-
-            {/* 情绪距离 */}
-            <div className="mt-1 flex flex-wrap items-center gap-1 text-[10px] text-cyan-600/80">
-              <span>VA 距离 {r.vaDistanceFromUserAvg.toFixed(2)}</span>
-              <span className="text-ink/25">·</span>
-              <span>过渡步长 {r.vaDistance.toFixed(2)}</span>
-              {r.song.genre !== userGenreTop[0] && (
-                <span className="ml-1 rounded-full bg-fuchsia-500/15 px-1.5 py-0.5 text-fuchsia-500">跨流派</span>
-              )}
+              </span>
             </div>
 
             {/* 自动润色的一句话理由（信息层级最高） */}
             {polished[r.song.id] && (
-              <p className="mt-2 rounded-lg border border-violet-400/20 bg-violet-500/10 px-2.5 py-1.5 text-xs leading-relaxed text-violet-600">
+              <p className="mt-1.5 rounded-lg border border-violet-400/20 bg-violet-500/10 px-2 py-1 text-[11px] leading-snug text-violet-600">
                 {polished[r.song.id]}
               </p>
             )}
 
-            {/* 三层规则理由（次级细节，折叠成紧凑行） */}
-            <div className="mt-2 grid grid-cols-1 gap-1">
+            {/* 三层规则理由（次级细节，压成一行紧凑 chip） */}
+            <div className="mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5">
               <ReasonChip label="技术" text={r.reasonTags.technical} color="#22d3ee" />
               <ReasonChip label="情绪" text={r.reasonTags.emotional} color="#a78bfa" />
               <ReasonChip label="行为" text={r.reasonTags.behavioral} color="#34d399" />
@@ -122,7 +120,7 @@ export default function RecommendationPanel({
 
 function ReasonChip({ label, text, color }: { label: string; text: string; color: string }) {
   return (
-    <span className="flex items-start gap-1.5 text-[11px] leading-snug text-ink/70">
+    <span className="flex items-start gap-1.5 text-[10.5px] leading-snug text-ink/70">
       <span
         className="mt-px shrink-0 rounded px-1 py-0.5 text-[9px] font-bold text-black/80"
         style={{ backgroundColor: color }}

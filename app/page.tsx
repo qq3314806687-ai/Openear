@@ -460,60 +460,55 @@ export default function Page() {
         <IntensitySlider value={intensity} onChange={setIntensity} />
       </div>
 
-      {/* 主体：左（情绪地图）/ 右（搜索 + 推荐） */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_1fr]">
-        {/* 左列：情绪边界地图（紧凑瀑布式） */}
-        <div className="flex flex-col gap-5">
-          <div id="emotion-map" className="scroll-mt-24">
-            <MapSection
-              songs={playlist}
-              candidates={bundle.recommendations.map((r) => r.song)}
-              onPlaySong={playSong}
-              onClearPlaylist={resetPlaylist}
-              onTogglePlaylist={toggleSongInPlaylist}
+      {/* 主体：左（情绪地图）/ 右（搜索音乐） */}
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
+        <div id="emotion-map" className="scroll-mt-24">
+          <MapSection
+            songs={playlist}
+            candidates={bundle.recommendations.map((r) => r.song)}
+            onPlaySong={playSong}
+            onClearPlaylist={resetPlaylist}
+            onTogglePlaylist={toggleSongInPlaylist}
+            playlistIds={playlistIds}
+            nowPlayingId={nowPlaying?.id}
+            playing={playing}
+            avg={bundle.userAvgVA}
+          />
+        </div>
+
+        <SearchPanel
+          playlist={playlist}
+          onAddBuiltIn={addSongToPlaylist}
+          onAddCustom={addCustom}
+          onAddUploaded={addUploaded}
+          onOpenPlaylist={() => setFullList(true)}
+        />
+      </div>
+
+      {/* 推荐路线：通栏两列卡片 */}
+      <div className="lift mt-5 flex flex-col rounded-3xl glass p-4">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
+          <h2 className="text-sm font-semibold text-ink">推荐路线</h2>
+          <div className="flex flex-wrap gap-1 text-[10px] text-ink/45">
+            {bundle.userGenreTop.map((g) => (
+              <span key={g} className="rounded-full border border-ink/10 px-2 py-0.5">
+                {g}
+              </span>
+            ))}
+            <span className="rounded-full border border-ink/10 px-2 py-0.5">主打</span>
+          </div>
+        </div>
+        <div className="max-h-[620px] overflow-y-auto pr-1">
+          <div id="recommend" className="scroll-mt-24">
+            <RecommendationPanel
+              recommendations={bundle.recommendations}
+              userGenreTop={bundle.userGenreTop}
               playlistIds={playlistIds}
-              nowPlayingId={nowPlaying?.id}
-              playing={playing}
-              avg={bundle.userAvgVA}
+              onTogglePlaylist={toggleSongInPlaylist}
+              onPlay={playSong}
             />
           </div>
         </div>
-
-        {/* 右侧面板 */}
-        <section className="flex flex-col gap-5">
-          <SearchPanel
-            playlist={playlist}
-            onAddBuiltIn={addSongToPlaylist}
-            onAddCustom={addCustom}
-            onAddUploaded={addUploaded}
-            onOpenPlaylist={() => setFullList(true)}
-          />
-
-          <div className="lift flex min-h-0 flex-1 flex-col rounded-3xl glass p-4">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
-              <h2 className="text-sm font-semibold text-ink">推荐路线</h2>
-              <div className="flex flex-wrap gap-1 text-[10px] text-ink/45">
-                {bundle.userGenreTop.map((g) => (
-                  <span key={g} className="rounded-full border border-ink/10 px-2 py-0.5">
-                    {g}
-                  </span>
-                ))}
-                <span className="rounded-full border border-ink/10 px-2 py-0.5">主打</span>
-              </div>
-            </div>
-            <div className="max-h-[600px] flex-1 overflow-y-auto pr-1">
-              <div id="recommend" className="scroll-mt-24">
-                <RecommendationPanel
-                  recommendations={bundle.recommendations}
-                  userGenreTop={bundle.userGenreTop}
-                  playlistIds={playlistIds}
-                  onTogglePlaylist={toggleSongInPlaylist}
-                  onPlay={playSong}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
 
       {/* 底部播放器 */}
