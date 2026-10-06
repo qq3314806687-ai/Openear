@@ -22,7 +22,7 @@ import { getAudioBlob } from '@/lib/lib/idb';
 import { getPreviewUrl } from '@/lib/lib/preview';
 import { getTodayMoodById } from '@/lib/lib/today';
 import MapSection from '@/components/MapSection';
-import AiChat from '@/components/AiChat';
+import CatCompanion from '@/components/CatCompanion';
 import IntensitySlider from '@/components/IntensitySlider';
 import RecommendationPanel from '@/components/RecommendationPanel';
 import PlaylistPanel from '@/components/PlaylistPanel';
@@ -456,7 +456,7 @@ export default function Page() {
 
       {/* 主体：左（地图 + AI 向导）/ 右面板 */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_1fr]">
-        {/* 左列：情绪边界地图（紧凑瀑布式）+ AI 音乐向导 */}
+        {/* 左列：情绪边界地图（紧凑瀑布式） */}
         <div className="flex flex-col gap-5">
           <div id="emotion-map" className="scroll-mt-24">
             <MapSection
@@ -471,7 +471,6 @@ export default function Page() {
               avg={bundle.userAvgVA}
             />
           </div>
-          <AiChat playlist={playlist} />
         </div>
 
         {/* 右侧面板 */}
@@ -544,6 +543,8 @@ export default function Page() {
       {content}
       {/* 柔和光斑跟随鼠标（含惯性），悬停可点元素时放大 */}
       <CursorGlow />
+      {/* 小梨花 Oreo 浮窗伙伴（进入主界面且已登录时出现） */}
+      {phase === 'welcome' && userId && <CatCompanion playlist={playlist} />}
       {/* 右上角全屏菜单（最终界面） */}
       {phase === 'welcome' && <FullscreenMenu onNavigate={handleNavigate} />}
       {/* 我的歌单「全览」界面（另起一整屏；主界面的歌单面板保留为预览） */}

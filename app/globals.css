@@ -747,6 +747,29 @@ body.menu-open {
   100% { transform: scale(1.8) rotate(150deg); opacity: 0; }
 }
 
+/* ============ 猫猫浮窗（CatCompanion） ============ */
+.cat-idle {
+  animation: catIdleBob 3.4s ease-in-out infinite alternate;
+}
+@keyframes catIdleBob {
+  from { transform: translateY(0); }
+  to { transform: translateY(4px); }
+}
+.cat-wave {
+  animation: catWaveWiggle 0.85s ease-in-out infinite alternate;
+}
+@keyframes catWaveWiggle {
+  from { transform: rotate(-6deg) translateY(0); }
+  to { transform: rotate(5deg) translateY(2px); }
+}
+.cat-hello {
+  animation: catHelloIn 0.35s var(--ease) both;
+}
+@keyframes catHelloIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* ============ 减少动态效果 ============ */
 @media (prefers-reduced-motion: reduce) {
   *,
