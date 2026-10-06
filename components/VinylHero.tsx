@@ -8,7 +8,8 @@ import { useEffect, useRef, useState } from 'react';
 import { fetchIpWeather } from '@/lib/weather';
 
 const VIDEO_URL = 'https://motionsites.org/assets/prompt-media/fdf088e281c69fca93f9.mp4';
-const POSTER_URL = 'https://motionsites.org/assets/prompt-media/b56bca6626151625e1e8.webp';
+// 海报图放本地（随包分发）：外部视频被墙/超时时，静态唱机画面也能兜底显示
+const POSTER_URL = '/poster-vinyl.webp';
 
 const NAV_ITEMS = [
   { zh: '首页', en: 'Home' },

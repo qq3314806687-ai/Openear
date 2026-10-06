@@ -411,12 +411,12 @@ body.menu-open {
 .d5 { animation-delay: 0.44s; }
 .d6 { animation-delay: 0.52s; }
 
-/* 大字标题：两行被 mask 遮罩的衬线标题 */
+/* 大字标题：三行被 mask 遮罩的衬线标题 */
 .hero .headline {
   margin: 0;
   font-family: 'Instrument Serif', 'Noto Serif SC', 'Songti SC', 'STSong', serif;
   font-weight: 400;
-  font-size: clamp(2.7rem, 6.3vw, 6.75rem);
+  font-size: clamp(2.2rem, 5.2vw, 5rem);
   line-height: 1.06;
   letter-spacing: -0.005em;
   text-align: center;
@@ -604,8 +604,7 @@ body.menu-open {
   .hero__inner { align-items: flex-start; }
   .hero .line { white-space: normal; }
   .hero .headline {
-    font-size: clamp(2.4rem, 6.4vw, 3.6rem);
-    max-width: 15ch;
+    font-size: clamp(2rem, 5.6vw, 3rem);
   }
   .hero__media img,
   .hero__media video { object-position: center 60%; }
@@ -636,9 +635,8 @@ body.menu-open {
 
 @media (max-width: 560px) {
   .hero .headline {
-    font-size: clamp(2.15rem, 9.4vw, 3.1rem);
+    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
     line-height: 1.12;
-    max-width: 11ch;
   }
   .hero__inner { padding-top: clamp(0.5rem, 2.6vh, 1.25rem); }
   .hero__media video,
@@ -646,11 +644,11 @@ body.menu-open {
 }
 
 @media (max-width: 380px) {
-  .hero .headline { font-size: 2rem; }
+  .hero .headline { font-size: 1.8rem; }
 }
 
 @media (max-height: 520px) and (orientation: landscape) {
-  .hero .headline { font-size: clamp(1.7rem, 5vw, 2.4rem); max-width: 22ch; }
+  .hero .headline { font-size: clamp(1.5rem, 4.4vw, 2.1rem); max-width: 22ch; }
   .hero__inner { padding-top: 0.75rem; }
   .menu-item .menu-zh { font-size: clamp(1.4rem, 5vw, 1.9rem); }
   .menu__rule { margin-top: 1.2rem; }
