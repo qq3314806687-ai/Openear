@@ -32,7 +32,8 @@ export function getUsers(): User[] {
     }
   }
   ordered.push(...byId.values());
-  return ordered;
+  // 兜底：旧数据可能把内置身份全部隐藏，导致列表为空、页面取不到当前用户而崩溃
+  return ordered.length > 0 ? ordered : (usersJson as User[]);
 }
 
 /** 置顶某个身份：移到列表最前（持久化） */

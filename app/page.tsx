@@ -43,7 +43,17 @@ const CUSTOM_KEY = 'openear.customUsers';
 function readCustom(): User[] {
   try {
     const raw = localStorage.getItem(CUSTOM_KEY);
-    return raw ? (JSON.parse(raw) as User[]) : [];
+    const list = raw ? (JSON.parse(raw) as unknown[]) : [];
+    // 清洗旧数据：只保留结构完整的用户，避免脏数据进入运行时用户列表
+    return Array.isArray(list)
+      ? list.filter(
+          (u): u is User =>
+            !!u &&
+            typeof u === 'object' &&
+            typeof (u as User).userId === 'string' &&
+            typeof (u as User).name === 'string',
+        )
+      : [];
   } catch {
     return [];
   }
@@ -145,7 +155,7 @@ export default function Page() {
 
   const users = getUsers();
   const user = useMemo(
-    () => users.find((u) => u.userId === (userId ?? 'userA'))!,
+    () => users.find((u) => u.userId === (userId ?? 'userA')) ?? users[0],
     [users, userId],
   );
 
