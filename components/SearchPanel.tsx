@@ -45,7 +45,7 @@ export default function SearchPanel({
       .filter((s) => !inPlaylist.has(s.id))
       .filter((s) => !gen || s.genre === gen)
       .filter((s) => !kw || s.title.toLowerCase().includes(kw) || s.artist.toLowerCase().includes(kw) || s.genre.toLowerCase().includes(kw))
-      .slice(0, 8);
+      .slice(0, 5);
   }, [q, inPlaylist, gen]);
 
   // 只展示当前曲库真实存在的流派 tag（已全部加入的流派自动隐藏）
@@ -114,8 +114,8 @@ export default function SearchPanel({
       </div>
 
       {/* ① 搜索在库歌曲 */}
-      <p className="mb-2 text-[10px] uppercase tracking-widest text-ink/40">搜索在库歌曲</p>
-      <div className="flex items-center gap-2 rounded-xl border border-ink/10 bg-ink/5 px-3 py-2.5">
+      <p className="mb-1.5 text-[10px] uppercase tracking-widest text-ink/40">搜索在库歌曲</p>
+      <div className="flex items-center gap-2 rounded-xl border border-ink/10 bg-ink/5 px-3 py-2">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-ink/35">
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" />
@@ -137,7 +137,7 @@ export default function SearchPanel({
           </button>
         )}
       </div>
-      <div className="mt-2 flex flex-wrap gap-1.5">
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
         <button
           type="button"
           onClick={() => setGen('')}
@@ -160,7 +160,7 @@ export default function SearchPanel({
           </button>
         ))}
       </div>
-      <ul className="mt-2 flex min-h-0 flex-1 flex-col space-y-1 overflow-y-auto pr-1">
+      <ul className="mt-1.5 flex min-h-0 flex-1 flex-col space-y-1 overflow-y-auto pr-1">
         {library.length === 0 && (
           <li className="grid min-h-16 flex-1 place-items-center text-center text-xs text-ink/35">
             {q || gen ? '没有匹配的曲目' : '曲库已全部加入'}
@@ -189,27 +189,27 @@ export default function SearchPanel({
       </ul>
 
       {/* 分隔 */}
-      <div className="my-4 border-t border-ink/10" />
+      <div className="my-3 border-t border-ink/10" />
 
       {/* ② 上传自己的音频（粘贴直链 / 上传 MP3 合二为一） */}
-      <p className="mb-2 text-[10px] uppercase tracking-widest text-ink/40">上传自己的音频</p>
+      <p className="mb-1.5 text-[10px] uppercase tracking-widest text-ink/40">上传自己的音频</p>
       <form
-        className="space-y-2"
+        className="space-y-1.5"
         onSubmit={(e) => { e.preventDefault(); submit(); }}
       >
-        <div className="rounded-xl border border-dashed border-ink/15 bg-ink/[0.02] p-3">
+        <div className="rounded-xl border border-dashed border-ink/15 bg-ink/[0.02] p-2.5">
           <div className="flex items-center gap-2">
             <input
               value={srcUrl}
               onChange={(e) => { setSrcUrl(e.target.value); if (e.target.value.trim()) setFile(null); }}
               placeholder="粘贴音频链接（mp3 / m4a 直链）…"
               inputMode="url"
-              className="min-w-0 flex-1 rounded-lg border border-ink/10 bg-white/50 px-3 py-2 text-xs text-ink placeholder-ink/30 outline-none focus:border-violet-400/50"
+              className="min-w-0 flex-1 rounded-lg border border-ink/10 bg-white/50 px-2.5 py-1.5 text-xs text-ink placeholder-ink/30 outline-none focus:border-violet-400/50"
             />
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="btn-lift shrink-0 rounded-lg border border-ink/10 bg-ink/5 px-3 py-2 text-xs text-ink/70 transition-colors hover:text-ink"
+              className="btn-lift shrink-0 rounded-lg border border-ink/10 bg-ink/5 px-2.5 py-1.5 text-xs text-ink/70 transition-colors hover:text-ink"
             >
               选择文件
             </button>
@@ -237,7 +237,7 @@ export default function SearchPanel({
               </button>
             </p>
           )}
-          <p className="mt-2 text-[10px] text-ink/35">粘贴直链或上传 MP3 二选一，都会作为专属曲目参与口味分析</p>
+          <p className="mt-1.5 text-[10px] text-ink/35">粘贴直链或上传 MP3 二选一，都会作为专属曲目参与口味分析</p>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
@@ -245,13 +245,13 @@ export default function SearchPanel({
             value={fm.title}
             onChange={(e) => setFm({ ...fm, title: e.target.value })}
             placeholder="歌曲名 *"
-            className="rounded-xl border border-ink/10 bg-ink/5 px-3 py-2 text-xs text-ink placeholder-ink/30 outline-none focus:border-violet-400/50"
+            className="rounded-xl border border-ink/10 bg-ink/5 px-2.5 py-1.5 text-xs text-ink placeholder-ink/30 outline-none focus:border-violet-400/50"
           />
           <input
             value={fm.artist}
             onChange={(e) => setFm({ ...fm, artist: e.target.value })}
             placeholder="歌手（可选）"
-            className="rounded-xl border border-ink/10 bg-ink/5 px-3 py-2 text-xs text-ink placeholder-ink/30 outline-none focus:border-violet-400/50"
+            className="rounded-xl border border-ink/10 bg-ink/5 px-2.5 py-1.5 text-xs text-ink placeholder-ink/30 outline-none focus:border-violet-400/50"
           />
         </div>
 
@@ -261,7 +261,7 @@ export default function SearchPanel({
             <select
               value={fm.mood}
               onChange={(e) => setFm({ ...fm, mood: e.target.value })}
-              className="flex-1 rounded-lg border border-ink/10 bg-ink/5 px-2 py-1.5 text-xs text-ink outline-none"
+              className="flex-1 rounded-lg border border-ink/10 bg-ink/5 px-2 py-1 text-xs text-ink outline-none"
             >
               {MOOD_KEYS.map((k) => (
                 <option key={k} value={k} className="bg-white">{MOOD_PRESETS[k as keyof typeof MOOD_PRESETS].label}</option>
@@ -273,7 +273,7 @@ export default function SearchPanel({
             <select
               value={fm.genre}
               onChange={(e) => setFm({ ...fm, genre: e.target.value })}
-              className="flex-1 rounded-lg border border-ink/10 bg-ink/5 px-2 py-1.5 text-xs text-ink outline-none"
+              className="flex-1 rounded-lg border border-ink/10 bg-ink/5 px-2 py-1 text-xs text-ink outline-none"
             >
               {GENRE_KEYS.map((g) => (
                 <option key={g} value={g} className="bg-white">{g}</option>
@@ -286,7 +286,7 @@ export default function SearchPanel({
         {ok && <p className="text-[11px] text-emerald-300">{ok}</p>}
         <button
           type="submit"
-          className="btn-lift w-full rounded-xl bg-gradient-to-r from-violet-500/80 to-cyan-500/80 py-2 text-xs font-semibold text-white hover:opacity-90"
+          className="btn-lift w-full rounded-xl bg-gradient-to-r from-violet-500/80 to-cyan-500/80 py-1.5 text-xs font-semibold text-white hover:opacity-90"
         >
           加入歌单并参与分析
         </button>

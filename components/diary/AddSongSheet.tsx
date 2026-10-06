@@ -1,6 +1,6 @@
 'use client';
 
-/** 底部弹出面板：从相册上传播放截图 / 拍照，上传后交给 analyzeScreenshot 解析成贴纸 */
+/** 底部弹出面板：从相册上传播放截图，上传后交给 analyzeScreenshot 解析成贴纸 */
 import { useEffect, useRef } from 'react';
 
 interface Props {
@@ -11,7 +11,6 @@ interface Props {
 
 export default function AddSongSheet({ open, onClose, onAnalyze }: Props) {
   const galleryRef = useRef<HTMLInputElement>(null);
-  const cameraRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -53,23 +52,12 @@ export default function AddSongSheet({ open, onClose, onAnalyze }: Props) {
               <path d="m21 15-3.5-3.5a2 2 0 0 0-2.8 0L6 20" />
             </svg>
           </span>
-          <span className="text-[14px] font-medium text-[#6B5644]">从相册上传播放截图</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => cameraRef.current?.click()}
-          className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-transform duration-150 active:scale-[0.98]"
-        >
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#E8A87C]/20 text-[#E8A87C]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-              <circle cx="12" cy="13" r="3" />
-            </svg>
+          <span className="flex-1">
+            <span className="block text-[14px] font-medium text-[#6B5644]">从相册上传播放截图</span>
+            <span className="mt-0.5 block text-[12px] text-[#B5A99B]">自动识别歌曲信息，贴成一张新贴纸</span>
           </span>
-          <span className="text-[14px] font-medium text-[#6B5644]">拍照</span>
         </button>
         <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
-        <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
       </div>
     </div>
   );
