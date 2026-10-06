@@ -18,7 +18,7 @@ interface Props {
   playlist: Song[];
 }
 
-const GREETING = '喵～我是 Oreo，你的小梨花音乐向导。想聊聊口味、心情，或者让我再挖几首野路子？';
+const GREETING = '喵～我是 Oreo，你的音乐向导。想聊聊口味、心情，或者让我再挖几首野路子？';
 
 const SUGGESTIONS = ['根据我的口味再推几首', '我的情绪边界是什么样的', '帮我挑一首今天适合的歌'];
 
@@ -134,13 +134,13 @@ export default function CatCompanion({ playlist }: Props) {
           {/* 头 */}
           <div className="flex items-center gap-3 border-b border-ink/10 pb-3">
             <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-2xl shadow-glow ring-1 ring-ink/10">
-              <img src="/cat-sprite-head.jpg" alt="Oreo 小梨花" className="h-full w-full object-cover" />
+              <img src="/cat-sprite-head.jpg" alt="Oreo" className="h-full w-full object-cover" />
               <span className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-emerald-400 text-[8px] font-bold text-black ring-2 ring-white">
                 AI
               </span>
             </span>
             <div className="min-w-0">
-              <h2 className="text-sm font-semibold text-ink">Oreo · 小梨花向导</h2>
+              <h2 className="text-sm font-semibold text-ink">Oreo · 音乐向导</h2>
               <p className="truncate text-[11px] text-ink/45">聊聊口味、情绪，或让它再挖几首野路子</p>
             </div>
             <button
@@ -263,7 +263,7 @@ export default function CatCompanion({ playlist }: Props) {
           waving ? 'cat-wave' : open ? '' : 'cat-idle'
         }`}
       >
-        <img src={face} alt="小梨花 Oreo" className="h-full w-full object-cover" draggable={false} />
+        <img src={face} alt="Oreo" className="h-full w-full object-cover" draggable={false} />
       </div>
     </div>
   );
