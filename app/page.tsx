@@ -460,8 +460,8 @@ export default function Page() {
         <IntensitySlider value={intensity} onChange={setIntensity} />
       </div>
 
-      {/* 主体：左（情绪地图）/ 右（搜索音乐） */}
-      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
+      {/* 主体：左（情绪地图）/ 右（搜索音乐），等高使底边对齐 */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_1fr]">
         <div id="emotion-map" className="scroll-mt-24">
           <MapSection
             songs={playlist}

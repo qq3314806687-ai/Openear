@@ -34,6 +34,21 @@ export default function RecommendationPanel({
         className="pointer-events-none absolute inset-y-1 left-1/2 hidden -translate-x-1/2 border-l border-dashed border-ink/15 md:block"
       />
 
+      {/* 第 1 → 2 首之间的路线箭头 */}
+      {recommendations.length > 1 && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-[56px] z-10 hidden -translate-x-1/2 md:block"
+        >
+          <span className="grid h-5 w-5 place-items-center rounded-full border border-ink/15 bg-white/90 text-ink/60 shadow-glow">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14" />
+              <path d="m13 6 6 6-6 6" />
+            </svg>
+          </span>
+        </span>
+      )}
+
       {recommendations.length === 0 && (
         <p className="col-span-full py-10 text-center text-sm text-ink/40">调整强度或点击空白区，生成你的探索路线…</p>
       )}

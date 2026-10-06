@@ -94,7 +94,7 @@ export default function SearchPanel({
   };
 
   return (
-    <section className="lift rounded-3xl glass p-4">
+    <section className="lift flex h-full flex-col rounded-3xl glass p-4">
       {/* 头 */}
       <div className="mb-3 flex items-center justify-between px-1">
         <h2 className="text-sm font-semibold text-ink">搜索音乐</h2>
@@ -160,9 +160,11 @@ export default function SearchPanel({
           </button>
         ))}
       </div>
-      <ul className="mt-2 max-h-[200px] space-y-1 overflow-y-auto pr-1">
+      <ul className="mt-2 flex min-h-0 flex-1 flex-col space-y-1 overflow-y-auto pr-1">
         {library.length === 0 && (
-          <li className="py-6 text-center text-xs text-ink/35">{q || gen ? '没有匹配的曲目' : '曲库已全部加入'}</li>
+          <li className="grid min-h-16 flex-1 place-items-center text-center text-xs text-ink/35">
+            {q || gen ? '没有匹配的曲目' : '曲库已全部加入'}
+          </li>
         )}
         {library.map((s) => (
           <li
