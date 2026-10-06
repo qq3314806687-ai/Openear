@@ -32,8 +32,8 @@ export function getUsers(): User[] {
     }
   }
   ordered.push(...byId.values());
-  // 兜底：旧数据可能把内置身份全部隐藏，导致列表为空、页面取不到当前用户而崩溃
-  return ordered.length > 0 ? ordered : (usersJson as User[]);
+  // 允许为空：用户可以把演示身份全部删除；页面层用「旅人」访客兜底当前用户
+  return ordered;
 }
 
 /** 置顶某个身份：移到列表最前（持久化） */
@@ -75,9 +75,9 @@ function savePrefs(p: Prefs) {
   }
 }
 
-/** 注册一个运行时新建的用户（登录/创建口味后调用） */
+/** 注册一个运行时新建的用户（登录/创建口味后调用；防重复） */
 export function registerUser(user: User): User {
-  runtimeUsers.push(user);
+  if (!runtimeUsers.some((u) => u.userId === user.userId)) runtimeUsers.push(user);
   return user;
 }
 

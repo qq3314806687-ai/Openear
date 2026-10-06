@@ -40,6 +40,9 @@ import DiaryPage from '@/components/diary/DiaryPage';
 const SESSION_KEY = 'openear.session';
 const CUSTOM_KEY = 'openear.customUsers';
 
+/** 身份列表被清空时的兜底访客（演示身份删光后接管，保证页面始终有当前用户） */
+const GUEST: User = { userId: 'guest', name: '旅人', history: [] };
+
 function readCustom(): User[] {
   try {
     const raw = localStorage.getItem(CUSTOM_KEY);
@@ -155,7 +158,7 @@ export default function Page() {
 
   const users = getUsers();
   const user = useMemo(
-    () => users.find((u) => u.userId === (userId ?? 'userA')) ?? users[0],
+    () => users.find((u) => u.userId === (userId ?? 'userA')) ?? users[0] ?? GUEST,
     [users, userId],
   );
 
@@ -280,6 +283,8 @@ export default function Page() {
   const login = (u: User, opts?: { intensity?: Intensity }) => {
     setUserId(u.userId);
     if (opts?.intensity) setIntensity(opts.intensity);
+    // 立即注册进运行时列表，新身份马上出现在身份列表里
+    registerUser(u);
     try {
       localStorage.setItem(SESSION_KEY, JSON.stringify({ userId: u.userId }));
       if (u.userId.startsWith('user-')) {
@@ -325,9 +330,22 @@ export default function Page() {
       const remaining = getUsers();
       const next = remaining[0];
       if (next) switchUser(next.userId);
-      else logout();
+      else ensureGuest();
     }
     setUsersTick((t) => t + 1);
+  };
+
+  /** 身份列表为空时创建并持久化「旅人」访客，避免页面失去当前用户 */
+  const ensureGuest = () => {
+    registerUser(GUEST);
+    try {
+      const arr = readCustom();
+      if (!arr.some((x) => x.userId === GUEST.userId)) arr.push(GUEST);
+      localStorage.setItem(CUSTOM_KEY, JSON.stringify(arr));
+    } catch {
+      /* 忽略 */
+    }
+    switchUser(GUEST.userId);
   };
 
   /* ---------- 全屏菜单分流 ---------- */
