@@ -375,13 +375,13 @@ body.menu-open {
   opacity: 0.75;
   transform: translateY(-0.15em);
 }
-/* 顶部中间：当地时间 · 天气（随访问者 IP 定位） */
+/* 顶部中间：当地时间 · 天气（随访问者 IP 定位，字体与大标题衬线统一） */
 .hero .nav__meta {
   flex: 1 1 auto;
   min-width: 0;
   text-align: center;
   padding: 0 0.75rem;
-  font-family: 'Instrument Sans', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  font-family: 'Instrument Serif', 'Noto Serif SC', 'Songti SC', 'STSong', serif;
   font-size: clamp(0.74rem, 1.05vw, 0.88rem);
   letter-spacing: 0.05em;
   color: rgba(11, 11, 12, 0.62);
@@ -416,8 +416,8 @@ body.menu-open {
   margin: 0;
   font-family: 'Instrument Serif', 'Noto Serif SC', 'Songti SC', 'STSong', serif;
   font-weight: 400;
-  font-size: clamp(2.2rem, 5.2vw, 5rem);
-  line-height: 1.06;
+  font-size: clamp(1.9rem, 4.4vw, 4.25rem);
+  line-height: 1.08;
   letter-spacing: -0.005em;
   text-align: center;
   color: var(--ink);
@@ -449,7 +449,7 @@ body.menu-open {
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: clamp(0.8rem, 2.6vh, 2.2rem) var(--pad-x) 0;
+  padding: clamp(0.5rem, 1.8vh, 1.5rem) var(--pad-x) 0;
   pointer-events: none;
 }
 
@@ -604,7 +604,7 @@ body.menu-open {
   .hero__inner { align-items: flex-start; }
   .hero .line { white-space: normal; }
   .hero .headline {
-    font-size: clamp(2rem, 5.6vw, 3rem);
+    font-size: clamp(1.75rem, 4.8vw, 2.5rem);
   }
   .hero__media img,
   .hero__media video { object-position: center 60%; }
@@ -635,21 +635,21 @@ body.menu-open {
 
 @media (max-width: 560px) {
   .hero .headline {
-    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
+    font-size: clamp(1.65rem, 7vw, 2.2rem);
     line-height: 1.12;
   }
-  .hero__inner { padding-top: clamp(0.5rem, 2.6vh, 1.25rem); }
+  .hero__inner { padding-top: clamp(0.35rem, 1.6vh, 0.9rem); }
   .hero__media video,
   .hero__media img { object-position: center 58%; }
 }
 
 @media (max-width: 380px) {
-  .hero .headline { font-size: 1.8rem; }
+  .hero .headline { font-size: 1.55rem; }
 }
 
 @media (max-height: 520px) and (orientation: landscape) {
-  .hero .headline { font-size: clamp(1.5rem, 4.4vw, 2.1rem); max-width: 22ch; }
-  .hero__inner { padding-top: 0.75rem; }
+  .hero .headline { font-size: clamp(1.3rem, 3.8vw, 1.8rem); max-width: 22ch; }
+  .hero__inner { padding-top: 0.5rem; }
   .menu-item .menu-zh { font-size: clamp(1.4rem, 5vw, 1.9rem); }
   .menu__rule { margin-top: 1.2rem; }
   .menu__foot { margin-top: 1.2rem; }
