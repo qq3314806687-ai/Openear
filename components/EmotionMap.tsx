@@ -4,11 +4,13 @@
  * 情绪边界地图 · 四象限散点图（纯 2D）
  * - X 轴：能量（安静 → 激烈），即 Arousal 0 → 1
  * - Y 轴：情绪色彩（冷 → 暖），即 Valence 0 → 1（暖在上）
- * - 以 (能量 0.5, 色彩 0.5) 为中轴，把地图切成四个象限，各填一种代表性底色：
- *   左上「温暖」、右上「热烈」、左下「冷寂」、右下「躁动」。
- * - 我的歌单 = 实心亮点；推荐候选 = 空心描边。所有点均可点击一键播放。
+ * - 四象限对应四季：春 = 暖 + 安静（左上）、夏 = 暖 + 热烈（右上）、
+ *   秋 = 冷 + 安静（左下）、冬 = 冷 + 激烈（右下）。
+ *   每个象限的点都是该季节的真实花色：春樱（粉）、夏茉莉（白）、秋桂（黄）、冬梅（红）。
+ * - 花蕊实心 = 已加入歌单；花蕊空心 = 推荐候选。所有点均可点击一键播放。
  * - 光影：顶部天空柔光 + 象限斜向渐变 + 底部收口暗角 + 点光晕分层；
- *   呼吸：每个点以错开的节奏缓慢脉动，当前播放点带扩散光圈。
+ *   呼吸：每朵花以错开的节奏缓慢开合，当前播放点带旋转绽放的扩散花环。
+ * - 注意：推荐逻辑链路不依赖象限展示名，仅按 arousal / valence 数值计算，改动不影响算法。
  */
 import { useMemo, useRef, useState } from 'react';
 import type { Song } from '@/lib/types';
@@ -28,15 +30,156 @@ const MID_Y = PAD_T + PLOT_H / 2;
 const xOf = (s: { arousal: number }) => PAD_L + s.arousal * PLOT_W;
 const yOf = (s: { valence: number }) => PAD_T + (1 - s.valence) * PLOT_H;
 
-/** 四个象限：左上/右上/左下/右下（屏幕坐标），各有代表性名称、底色与渐变光 */
+/** 花朵外半径余量：把花朵中心收进绘图区内，避免花瓣尖端伸出地图边界 */
+const FLOWER_M = 11;
+const flowerX = (s: { arousal: number }) => Math.min(PAD_L + PLOT_W - FLOWER_M, Math.max(PAD_L + FLOWER_M, xOf(s)));
+const flowerY = (s: { valence: number }) => Math.min(PAD_T + PLOT_H - FLOWER_M, Math.max(PAD_T + FLOWER_M, yOf(s)));
+
+/** 四季花的配置：花瓣路径 + 花瓣数 + 真实花色 + 花蕊（局部坐标：花心 0,0，瓣尖朝上） */
+interface FlowerStyle {
+  petals: number;
+  path: string;
+  fill: string;        // 花瓣主色（真实花色）
+  stroke: string;      // 花瓣描边
+  strokeWidth: number;
+  core: string;        // 花蕊色
+  coreR: number;       // 花蕊半径 ≈ size * coreR
+  glow: string;        // 氛围光 / 涟漪色
+}
+
+/** 樱花单瓣（春）：尖端带 V 形裂口 */
+const PETAL = [
+  'M0 0',
+  'C0.16 -0.14 0.3 -0.36 0.27 -0.62',
+  'C0.24 -0.86 0.09 -1 0.024 -1.06',
+  'L0.028 -0.87',
+  'L-0.028 -0.87',
+  'L-0.024 -1.06',
+  'C-0.09 -1 -0.24 -0.86 -0.27 -0.62',
+  'C-0.3 -0.36 -0.16 -0.14 0 0',
+  'Z',
+].join(' ');
+
+/** 茉莉单瓣（夏）：圆润无裂口 */
+const JASMINE = [
+  'M0 0',
+  'C0.22 -0.12 0.36 -0.32 0.34 -0.55',
+  'C0.32 -0.8 0.15 -0.95 0 -1.02',
+  'C-0.15 -0.95 -0.32 -0.8 -0.34 -0.55',
+  'C-0.36 -0.32 -0.22 -0.12 0 0',
+  'Z',
+].join(' ');
+
+/** 桂花单瓣（秋）：小而圆 */
+const OSMANTHUS = [
+  'M0 0',
+  'C0.24 -0.1 0.34 -0.3 0.31 -0.5',
+  'C0.28 -0.68 0.13 -0.82 0 -0.88',
+  'C-0.13 -0.82 -0.28 -0.68 -0.31 -0.5',
+  'C-0.34 -0.3 -0.24 -0.1 0 0',
+  'Z',
+].join(' ');
+
+/** 梅花单瓣（冬）：圆润略尖 */
+const PLUM = [
+  'M0 0',
+  'C0.2 -0.12 0.32 -0.32 0.3 -0.54',
+  'C0.27 -0.76 0.12 -0.93 0 -1',
+  'C-0.12 -0.93 -0.27 -0.76 -0.3 -0.54',
+  'C-0.32 -0.32 -0.2 -0.12 0 0',
+  'Z',
+].join(' ');
+
+const FLOWERS: Record<'spring' | 'summer' | 'autumn' | 'winter', FlowerStyle> = {
+  spring: {
+    petals: 5,
+    path: PETAL,
+    fill: '#f8a8c6',
+    stroke: '#e67ba6',
+    strokeWidth: 0.7,
+    core: '#f9cf72',
+    coreR: 0.3,
+    glow: '#f8a8c6',
+  },
+  summer: {
+    petals: 6,
+    path: JASMINE,
+    fill: '#ffffff',
+    stroke: '#aab6c2',
+    strokeWidth: 0.7,
+    core: '#f2c15b',
+    coreR: 0.32,
+    glow: '#e8eef2',
+  },
+  autumn: {
+    petals: 4,
+    path: OSMANTHUS,
+    fill: '#f4b63c',
+    stroke: '#d8931f',
+    strokeWidth: 0.7,
+    core: '#e07f24',
+    coreR: 0.3,
+    glow: '#f4b63c',
+  },
+  winter: {
+    petals: 5,
+    path: PLUM,
+    fill: '#e85562',
+    stroke: '#c23a49',
+    strokeWidth: 0.7,
+    core: '#f6cd5f',
+    coreR: 0.3,
+    glow: '#e85562',
+  },
+};
+
+/** 四个象限 = 春夏秋冬：左上 春（暖+安静）、右上 夏（暖+热烈）、左下 秋（冷+安静）、右下 冬（冷+激烈） */
 const QUADRANTS = [
-  { left: PAD_L, top: PAD_T, name: '温暖', color: '#d9b06a', light: 'rgba(255,236,200,0.50)', dark: 'rgba(217,176,106,0.06)' },
-  { left: MID_X, top: PAD_T, name: '热烈', color: '#e08a5f', light: 'rgba(255,215,190,0.48)', dark: 'rgba(224,138,95,0.06)' },
-  { left: PAD_L, top: MID_Y, name: '冷寂', color: '#7da6b5', light: 'rgba(210,235,245,0.45)', dark: 'rgba(125,166,181,0.06)' },
-  { left: MID_X, top: MID_Y, name: '躁动', color: '#9b8bd0', light: 'rgba(225,215,250,0.45)', dark: 'rgba(155,139,208,0.06)' },
+  { left: PAD_L, top: PAD_T, name: '春', color: '#d98aa8', light: 'rgba(255,228,238,0.55)', dark: 'rgba(217,138,168,0.07)', flower: FLOWERS.spring },
+  { left: MID_X, top: PAD_T, name: '夏', color: '#79b089', light: 'rgba(234,246,238,0.55)', dark: 'rgba(121,176,137,0.07)', flower: FLOWERS.summer },
+  { left: PAD_L, top: MID_Y, name: '秋', color: '#c8912a', light: 'rgba(252,240,216,0.55)', dark: 'rgba(200,145,42,0.07)', flower: FLOWERS.autumn },
+  { left: MID_X, top: MID_Y, name: '冬', color: '#8aa2c4', light: 'rgba(228,238,250,0.55)', dark: 'rgba(138,162,196,0.07)', flower: FLOWERS.winter },
 ];
 
-const CANDIDATE_COLOR = '#a78bfa';
+/** 点所属季节：按 valence（暖/冷）与 arousal（安静/激烈）映射，与推荐算法数值口径一致 */
+const flowerOf = (s: { arousal: number; valence: number }): FlowerStyle => {
+  if (s.valence >= 0.5 && s.arousal < 0.5) return FLOWERS.spring;
+  if (s.valence >= 0.5 && s.arousal >= 0.5) return FLOWERS.summer;
+  if (s.valence < 0.5 && s.arousal < 0.5) return FLOWERS.autumn;
+  return FLOWERS.winter;
+};
+
+/** 花瓣组：按花型绕花心均分旋转；默认实心花瓣，ring=涟漪/描边花环 */
+function FlowerPetals({ flower, size, ring = false }: { flower: FlowerStyle; size: number; ring?: boolean }) {
+  return (
+    <>
+      {Array.from({ length: flower.petals }, (_, i) => (
+        <path
+          key={i}
+          d={flower.path}
+          fill={ring ? 'none' : flower.fill}
+          stroke={ring ? flower.glow : flower.stroke}
+          strokeWidth={ring ? 1.7 : flower.strokeWidth}
+          strokeOpacity={ring ? 0.95 : 1}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          transform={`rotate(${(360 / flower.petals) * i}) scale(${size})`}
+        />
+      ))}
+    </>
+  );
+}
+
+/** 花蕊：filled=实心（已加入歌单）/ 空心描边（推荐候选） */
+function FlowerCore({ flower, size, filled }: { flower: FlowerStyle; size: number; filled: boolean }) {
+  const r = size * flower.coreR;
+  return filled ? (
+    <circle r={r} fill={flower.core} />
+  ) : (
+    <circle r={r} fill="none" stroke={flower.core} strokeWidth={1} />
+  );
+}
 
 interface Props {
   songs: Song[];
@@ -208,10 +351,12 @@ export default function EmotionMap({
             <tspan>暖</tspan>
           </text>
 
-          {/* 推荐候选（光晕 + 呼吸虚线圈 + 淡色内芯，点击打开预览卡） */}
+          {/* 推荐候选（季节花 · 花蕊空心 = 推荐，点击打开预览卡） */}
           {candidates.map((s, i) => {
             const lit = hoverId === s.id || activeId === s.id;
             const isPlaying = nowPlayingId === s.id && playing;
+            const flower = flowerOf(s);
+            const F_SIZE = 8.5;
             return (
               <g
                 key={`c-${s.id}`}
@@ -222,35 +367,36 @@ export default function EmotionMap({
               >
                 {/* 柔光晕 */}
                 <circle
-                  cx={xOf(s)} cy={yOf(s)} r={12} fill={s.coverColor}
-                  fillOpacity={lit ? 0.3 : 0.14} filter="url(#mapGlow)"
+                  cx={flowerX(s)} cy={flowerY(s)} r={11} fill={flower.glow}
+                  fillOpacity={lit ? 0.3 : 0.15} filter="url(#mapGlow)"
                 />
-                {/* 呼吸虚线外圈 */}
-                <circle
-                  className="map-cand map-cand--pulse"
-                  cx={xOf(s)} cy={yOf(s)} r={10} fill="none"
-                  stroke={lit ? '#c4b5fd' : CANDIDATE_COLOR}
-                  strokeWidth={1.2} strokeDasharray="3 2.5"
-                  style={{ animationDelay: `${(i % 6) * 0.4}s` }}
-                />
-                {/* 淡色内芯（点色质） */}
-                <circle
-                  cx={xOf(s)} cy={yOf(s)} r={6.5} fill={s.coverColor} fillOpacity={0.45}
-                  stroke={activeId === s.id ? '#0b0b0c' : CANDIDATE_COLOR} strokeWidth={2}
-                  strokeOpacity={lit ? 1 : 0.85}
-                />
-                {/* 播放中：扩散光圈 */}
+                {/* 呼吸花本体 */}
+                <g transform={`translate(${flowerX(s)} ${flowerY(s)})`}>
+                  <g className="map-cand map-cand--pulse" style={{ animationDelay: `${(i % 6) * 0.4}s` }}>
+                    <FlowerPetals flower={flower} size={F_SIZE} />
+                    {/* 花蕊（空心 = 推荐） */}
+                    <FlowerCore flower={flower} size={F_SIZE} filled={false} />
+                  </g>
+                </g>
+                {/* hover/选中：光晕变亮即高亮反馈 */}
+                {/* 播放中：旋转绽放的扩散花环 */}
                 {isPlaying && (
-                  <circle className="map-playring" cx={xOf(s)} cy={yOf(s)} r={10} fill="none" stroke={s.coverColor} strokeWidth={2} />
+                  <g transform={`translate(${flowerX(s)} ${flowerY(s)})`}>
+                    <g className="map-playring">
+                      <FlowerPetals flower={flower} size={F_SIZE} ring />
+                    </g>
+                  </g>
                 )}
               </g>
             );
           })}
 
-          {/* 我的歌单（光晕分层 + 呼吸 + 高光，点击打开预览卡） */}
+          {/* 我的歌单（季节花 · 花蕊实心 = 已加入，点击打开预览卡） */}
           {songs.map((s, i) => {
             const lit = hoverId === s.id || activeId === s.id;
             const isPlaying = nowPlayingId === s.id && playing;
+            const flower = flowerOf(s);
+            const F_SIZE = 8.5;
             return (
               <g
                 key={`d-${s.id}`}
@@ -261,25 +407,25 @@ export default function EmotionMap({
               >
                 {/* 柔光晕 */}
                 <circle
-                  cx={xOf(s)} cy={yOf(s)} r={13} fill={s.coverColor}
-                  fillOpacity={lit ? 0.34 : 0.16} filter="url(#mapGlow)"
+                  cx={flowerX(s)} cy={flowerY(s)} r={12.5} fill={flower.glow}
+                  fillOpacity={lit ? 0.34 : 0.18} filter="url(#mapGlow)"
                 />
-                {/* 主体 */}
-                <circle
-                  className="map-dot map-dot--pulse"
-                  cx={xOf(s)} cy={yOf(s)} r={9} fill={s.coverColor}
-                  stroke={isPlaying ? '#0b0b0c' : 'rgba(11,11,12,0.35)'} strokeWidth={1.5}
-                  style={{ animationDelay: `${(i % 7) * 0.45}s` }}
-                />
-                {/* 内高光（左上小亮斑，增强立体） */}
-                <circle cx={xOf(s) - 2.5} cy={yOf(s) - 3} r={3} fill="#ffffff" fillOpacity={0.55} />
-                {/* 播放中：扩散光圈 */}
+                {/* 呼吸花本体 */}
+                <g transform={`translate(${flowerX(s)} ${flowerY(s)})`}>
+                  <g className="map-dot map-dot--pulse" style={{ animationDelay: `${(i % 7) * 0.45}s` }}>
+                    <FlowerPetals flower={flower} size={F_SIZE} />
+                    {/* 花蕊（实心 = 已加入） */}
+                    <FlowerCore flower={flower} size={F_SIZE} filled />
+                  </g>
+                </g>
+                {/* hover/选中：光晕变亮即高亮反馈 */}
+                {/* 播放中：旋转绽放的扩散花环 */}
                 {isPlaying && (
-                  <circle className="map-playring" cx={xOf(s)} cy={yOf(s)} r={9} fill="none" stroke={s.coverColor} strokeWidth={2.5} />
-                )}
-                {/* hover/选中描边 */}
-                {lit && (
-                  <circle cx={xOf(s)} cy={yOf(s)} r={9} fill="none" stroke={s.coverColor} strokeWidth={3} strokeOpacity={0.9} />
+                  <g transform={`translate(${flowerX(s)} ${flowerY(s)})`}>
+                    <g className="map-playring">
+                      <FlowerPetals flower={flower} size={F_SIZE} ring />
+                    </g>
+                  </g>
                 )}
               </g>
             );
@@ -350,12 +496,22 @@ export default function EmotionMap({
       {/* 图例 */}
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-xs text-ink/60">
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-cyan-500 ring-1 ring-ink/30" />
+          <svg viewBox="-1.3 -1.35 2.6 2.7" className="h-3 w-3" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, i) => (
+              <path key={i} d={PETAL} fill="#f8a8c6" stroke="#e67ba6" strokeWidth={0.12} transform={`rotate(${(360 / 5) * i}) scale(0.9)`} />
+            ))}
+            <circle r={0.24} fill="#f9cf72" />
+          </svg>
           已加入歌单
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full border-2 border-violet-400" />
-          推荐候选
+          <svg viewBox="-1.3 -1.35 2.6 2.7" className="h-3 w-3" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, i) => (
+              <path key={i} d={PETAL} fill="#f8a8c6" stroke="#e67ba6" strokeWidth={0.12} transform={`rotate(${(360 / 5) * i}) scale(0.9)`} />
+            ))}
+            <circle r={0.24} fill="none" stroke="#f9cf72" strokeWidth={0.16} />
+          </svg>
+          推荐歌曲
         </span>
       </div>
     </div>
