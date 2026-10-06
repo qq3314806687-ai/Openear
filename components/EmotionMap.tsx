@@ -7,8 +7,8 @@
  * - 以 (能量 0.5, 色彩 0.5) 为中轴，把地图切成四个象限，各填一种代表性底色：
  *   左上「温暖」、右上「热烈」、左下「冷寂」、右下「躁动」。
  * - 我的歌单 = 实心亮点；推荐候选 = 空心描边。所有点均可点击一键播放。
- * - 点击点弹出预览卡（常驻，不随光标离开消失）：歌曲信息 + 试听 + 加入歌单；
- *   点击卡片内按钮执行后关闭，点击地图空白或其它点切换。
+ * - 光影：顶部天空柔光 + 象限斜向渐变 + 底部收口暗角 + 点光晕分层；
+ *   呼吸：每个点以错开的节奏缓慢脉动，当前播放点带扩散光圈。
  */
 import { useMemo, useRef, useState } from 'react';
 import type { Song } from '@/lib/types';
@@ -28,12 +28,12 @@ const MID_Y = PAD_T + PLOT_H / 2;
 const xOf = (s: { arousal: number }) => PAD_L + s.arousal * PLOT_W;
 const yOf = (s: { valence: number }) => PAD_T + (1 - s.valence) * PLOT_H;
 
-/** 四个象限：左上/右上/左下/右下（屏幕坐标），各有代表性名称与底色 */
+/** 四个象限：左上/右上/左下/右下（屏幕坐标），各有代表性名称、底色与渐变光 */
 const QUADRANTS = [
-  { left: PAD_L, top: PAD_T, name: '温暖', color: '#d9b06a' },
-  { left: MID_X, top: PAD_T, name: '热烈', color: '#e08a5f' },
-  { left: PAD_L, top: MID_Y, name: '冷寂', color: '#7da6b5' },
-  { left: MID_X, top: MID_Y, name: '躁动', color: '#9b8bd0' },
+  { left: PAD_L, top: PAD_T, name: '温暖', color: '#d9b06a', light: 'rgba(255,236,200,0.50)', dark: 'rgba(217,176,106,0.06)' },
+  { left: MID_X, top: PAD_T, name: '热烈', color: '#e08a5f', light: 'rgba(255,215,190,0.48)', dark: 'rgba(224,138,95,0.06)' },
+  { left: PAD_L, top: MID_Y, name: '冷寂', color: '#7da6b5', light: 'rgba(210,235,245,0.45)', dark: 'rgba(125,166,181,0.06)' },
+  { left: MID_X, top: MID_Y, name: '躁动', color: '#9b8bd0', light: 'rgba(225,215,250,0.45)', dark: 'rgba(155,139,208,0.06)' },
 ];
 
 const CANDIDATE_COLOR = '#a78bfa';
@@ -59,7 +59,7 @@ export default function EmotionMap({
 }: Props) {
   // 地图外包容器（用于计算预览卡的水平钳制，防止屏幕边缘的点卡片跑出屏）
   const wrapRef = useRef<HTMLDivElement>(null);
-  // 点击选中的点（驱动预览卡，常驻不随光标消失）
+  // 点击选中的点（驱动预览卡，常驻不随光标离开消失）
   const [active, setActive] = useState<{ song: Song; x: number; y: number } | null>(null);
   // 光标悬停高亮（仅视觉反馈，不控制弹窗）
   const [hoverId, setHoverId] = useState<string | null>(null);
@@ -90,29 +90,64 @@ export default function EmotionMap({
             <clipPath id="plotClip">
               <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} rx={12} />
             </clipPath>
+
+            {/* 顶部天空柔光：模拟光源从画面上方洒下 */}
+            <radialGradient id="skyLight" cx="50%" cy="0%" r="95%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.42" />
+              <stop offset="55%" stopColor="#ffffff" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </radialGradient>
+
+            {/* 底部收口暗角 */}
+            <linearGradient id="floorShade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(11,11,12,0)" />
+              <stop offset="82%" stopColor="rgba(11,11,12,0)" />
+              <stop offset="100%" stopColor="rgba(11,11,12,0.07)" />
+            </linearGradient>
+
+            {/* 象限斜向渐变光（上亮下暗，模拟光影层次） */}
+            {QUADRANTS.map((q, i) => (
+              <linearGradient key={`qg-${i}`} id={`qGrad${i}`} x1="0" y1="0" x2="0.35" y2="1">
+                <stop offset="0%" stopColor={q.light} />
+                <stop offset="55%" stopColor={q.color} stopOpacity="0.18" />
+                <stop offset="100%" stopColor={q.dark} />
+              </linearGradient>
+            ))}
+
+            {/* 点柔光滤镜：光晕 + 原图合成 */}
+            <filter id="mapGlow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
           </defs>
 
           {/* 绘图区底 */}
-          <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} rx={12} fill="rgba(11,11,12,0.02)" />
+          <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} rx={12} fill="rgba(255,255,255,0.30)" stroke="rgba(11,11,12,0.08)" />
 
-          {/* 四象限底色 */}
+          {/* 四象限渐变底色 */}
           <g clipPath="url(#plotClip)">
-            {QUADRANTS.map((q) => (
+            {QUADRANTS.map((q, i) => (
               <rect
                 key={q.name}
                 x={q.left}
                 y={q.top}
                 width={PLOT_W / 2}
                 height={PLOT_H / 2}
-                fill={q.color}
-                fillOpacity={0.16}
+                fill={`url(#qGrad${i})`}
               />
             ))}
+
+            {/* 光照层：顶部柔光 + 底部暗角 */}
+            <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} fill="url(#skyLight)" />
+            <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} fill="url(#floorShade)" />
           </g>
 
           {/* 象限分隔线 + 中轴十字 */}
-          <line x1={MID_X} y1={PAD_T} x2={MID_X} y2={PAD_T + PLOT_H} stroke="rgba(11,11,12,0.14)" strokeDasharray="4 4" />
-          <line x1={PAD_L} y1={MID_Y} x2={PAD_L + PLOT_W} y2={MID_Y} stroke="rgba(11,11,12,0.14)" strokeDasharray="4 4" />
+          <line x1={MID_X} y1={PAD_T} x2={MID_X} y2={PAD_T + PLOT_H} stroke="rgba(11,11,12,0.13)" strokeDasharray="4 4" />
+          <line x1={PAD_L} y1={MID_Y} x2={PAD_L + PLOT_W} y2={MID_Y} stroke="rgba(11,11,12,0.13)" strokeDasharray="4 4" />
 
           {/* 辅助网格 */}
           {[0.25, 0.75].map((t) => (
@@ -128,33 +163,31 @@ export default function EmotionMap({
             </g>
           ))}
 
-          {/* 象限名称（移到各象限左上角 · 较小一号） */}
-          {QUADRANTS.map((q) => {
-            return (
-              <text
-                key={q.name}
-                x={q.left + 10}
-                y={q.top + 20}
-                textAnchor="start"
-                fill={q.color}
-                fontSize="11.5"
-                fontWeight="400"
-                letterSpacing="1.5"
-                paintOrder="stroke"
-                stroke="rgba(11,11,12,0.5)"
-                strokeWidth="3"
-                style={{ pointerEvents: 'none' }}
-              >
-                {q.name}
-              </text>
-            );
-          })}
+          {/* 象限名称（各象限左上角 · 带光晕描边） */}
+          {QUADRANTS.map((q) => (
+            <text
+              key={q.name}
+              x={q.left + 10}
+              y={q.top + 20}
+              textAnchor="start"
+              fill={q.color}
+              fontSize="11.5"
+              fontWeight="400"
+              letterSpacing="1.5"
+              paintOrder="stroke"
+              stroke="rgba(255,255,255,0.85)"
+              strokeWidth="3.5"
+              style={{ pointerEvents: 'none' }}
+            >
+              {q.name}
+            </text>
+          ))}
 
           {/* 坐标轴 + 边框 */}
           <line x1={PAD_L} y1={PAD_T + PLOT_H} x2={PAD_L + PLOT_W} y2={PAD_T + PLOT_H} stroke="rgba(11,11,12,0.25)" />
           <line x1={PAD_L} y1={PAD_T} x2={PAD_L} y2={PAD_T + PLOT_H} stroke="rgba(11,11,12,0.25)" />
 
-          {/* 轴标注（汇文明朝体 · 玻璃透色字；箭头用系统无衬线字体） */}
+          {/* 轴标注（玻璃透色字；箭头用系统无衬线字体） */}
           <text
             x={PAD_L + PLOT_W / 2} y={H - 5} textAnchor="middle" fill="rgba(11,11,12,0.55)" fontSize="13"
             fontWeight="400" letterSpacing="1"
@@ -175,9 +208,10 @@ export default function EmotionMap({
             <tspan>暖</tspan>
           </text>
 
-          {/* 推荐候选（空心描边 + 虚线外圈，点击打开预览卡） */}
-          {candidates.map((s) => {
+          {/* 推荐候选（光晕 + 呼吸虚线圈 + 淡色内芯，点击打开预览卡） */}
+          {candidates.map((s, i) => {
             const lit = hoverId === s.id || activeId === s.id;
+            const isPlaying = nowPlayingId === s.id && playing;
             return (
               <g
                 key={`c-${s.id}`}
@@ -186,33 +220,70 @@ export default function EmotionMap({
                 onMouseEnter={(e) => { e.stopPropagation(); setHoverId(s.id); }}
                 onMouseLeave={() => setHoverId((h) => (h === s.id ? null : h))}
               >
+                {/* 柔光晕 */}
                 <circle
+                  cx={xOf(s)} cy={yOf(s)} r={12} fill={s.coverColor}
+                  fillOpacity={lit ? 0.3 : 0.14} filter="url(#mapGlow)"
+                />
+                {/* 呼吸虚线外圈 */}
+                <circle
+                  className="map-cand map-cand--pulse"
                   cx={xOf(s)} cy={yOf(s)} r={10} fill="none"
                   stroke={lit ? '#c4b5fd' : CANDIDATE_COLOR}
-                  strokeWidth={1.2} strokeDasharray="3 2.5" strokeOpacity={lit ? 1 : 0.9}
+                  strokeWidth={1.2} strokeDasharray="3 2.5"
+                  style={{ animationDelay: `${(i % 6) * 0.4}s` }}
                 />
-                <circle cx={xOf(s)} cy={yOf(s)} r={6.5} fill="none" stroke={activeId === s.id ? '#0b0b0c' : CANDIDATE_COLOR} strokeWidth={2} />
+                {/* 淡色内芯（点色质） */}
+                <circle
+                  cx={xOf(s)} cy={yOf(s)} r={6.5} fill={s.coverColor} fillOpacity={0.45}
+                  stroke={activeId === s.id ? '#0b0b0c' : CANDIDATE_COLOR} strokeWidth={2}
+                  strokeOpacity={lit ? 1 : 0.85}
+                />
+                {/* 播放中：扩散光圈 */}
+                {isPlaying && (
+                  <circle className="map-playring" cx={xOf(s)} cy={yOf(s)} r={10} fill="none" stroke={s.coverColor} strokeWidth={2} />
+                )}
               </g>
             );
           })}
 
-          {/* 我的歌单（实心亮点 + 白描边，点击打开预览卡） */}
-          {songs.map((s) => (
-            <g
-              key={`d-${s.id}`}
-              style={{ cursor: 'pointer' }}
-              onClick={(e) => { e.stopPropagation(); openCard(s); }}
-              onMouseEnter={(e) => { e.stopPropagation(); setHoverId(s.id); }}
-              onMouseLeave={() => setHoverId((h) => (h === s.id ? null : h))}
-            >
-              <circle cx={xOf(s)} cy={yOf(s)} r={9} fill={s.coverColor} stroke="rgba(11,11,12,0.4)" strokeWidth={1.5} />
-              <circle
-                cx={xOf(s)} cy={yOf(s)} r={9} fill="none"
-                stroke={hoverId === s.id || activeId === s.id ? s.coverColor : 'transparent'}
-                strokeWidth={2.5}
-              />
-            </g>
-          ))}
+          {/* 我的歌单（光晕分层 + 呼吸 + 高光，点击打开预览卡） */}
+          {songs.map((s, i) => {
+            const lit = hoverId === s.id || activeId === s.id;
+            const isPlaying = nowPlayingId === s.id && playing;
+            return (
+              <g
+                key={`d-${s.id}`}
+                style={{ cursor: 'pointer' }}
+                onClick={(e) => { e.stopPropagation(); openCard(s); }}
+                onMouseEnter={(e) => { e.stopPropagation(); setHoverId(s.id); }}
+                onMouseLeave={() => setHoverId((h) => (h === s.id ? null : h))}
+              >
+                {/* 柔光晕 */}
+                <circle
+                  cx={xOf(s)} cy={yOf(s)} r={13} fill={s.coverColor}
+                  fillOpacity={lit ? 0.34 : 0.16} filter="url(#mapGlow)"
+                />
+                {/* 主体 */}
+                <circle
+                  className="map-dot map-dot--pulse"
+                  cx={xOf(s)} cy={yOf(s)} r={9} fill={s.coverColor}
+                  stroke={isPlaying ? '#0b0b0c' : 'rgba(11,11,12,0.35)'} strokeWidth={1.5}
+                  style={{ animationDelay: `${(i % 7) * 0.45}s` }}
+                />
+                {/* 内高光（左上小亮斑，增强立体） */}
+                <circle cx={xOf(s) - 2.5} cy={yOf(s) - 3} r={3} fill="#ffffff" fillOpacity={0.55} />
+                {/* 播放中：扩散光圈 */}
+                {isPlaying && (
+                  <circle className="map-playring" cx={xOf(s)} cy={yOf(s)} r={9} fill="none" stroke={s.coverColor} strokeWidth={2.5} />
+                )}
+                {/* hover/选中描边 */}
+                {lit && (
+                  <circle cx={xOf(s)} cy={yOf(s)} r={9} fill="none" stroke={s.coverColor} strokeWidth={3} strokeOpacity={0.9} />
+                )}
+              </g>
+            );
+          })}
         </svg>
 
         {/* 预览卡（点击点后常驻；点按钮执行后关闭） */}
