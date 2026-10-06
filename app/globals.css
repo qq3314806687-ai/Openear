@@ -799,3 +799,51 @@ body.menu-open {
   .btn-lift:active:not(:disabled) { transform: none; box-shadow: none; }
   .skeleton::after { animation: none; }
 }
+
+/* ---------- 音乐日记 · 手账质感动画 ---------- */
+@keyframes diary-slap {
+  0% { transform: rotate(-9deg) scale(1.3); opacity: 0; }
+  55% { transform: rotate(1deg) scale(0.94); opacity: 1; }
+  100% { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+.diary-new { animation: diary-slap 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.15); }
+
+@keyframes diary-in {
+  from { transform: translateX(26px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.diary-in { animation: diary-in 0.3s ease-out; }
+
+@keyframes sheet-up {
+  from { transform: translateY(26px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.sheet-up { animation: sheet-up 0.28s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .diary-new,
+  .diary-in,
+  .sheet-up { animation: none; opacity: 1; transform: none; }
+}
+
+/* 横线纸 + 左侧活页圆点（音乐日记笔记本内里） */
+.paper-lines {
+  background-image:
+    radial-gradient(circle, #E8E2D9 1.5px, transparent 1.6px),
+    linear-gradient(#E8E2D9 1px, transparent 1px);
+  background-size: 16px 56px, 100% 56px;
+  background-position: 4px 8px, 0 8px;
+  background-repeat: repeat;
+  opacity: 0.75;
+}
+
+/* AI 解析中：小贴纸呼吸 */
+@keyframes diary-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.diary-pulse { animation: diary-pulse 1.1s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .diary-pulse { animation: none; opacity: 1; transform: none; }
+}

@@ -35,6 +35,7 @@ import CursorGlow from '@/components/CursorGlow';
 import FullscreenMenu, { type MenuRoute } from '@/components/FullscreenMenu';
 import FullPlaylistScreen from '@/components/FullPlaylistScreen';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import DiaryPage from '@/components/diary/DiaryPage';
 
 const SESSION_KEY = 'openear.session';
 const CUSTOM_KEY = 'openear.customUsers';
@@ -63,6 +64,9 @@ export default function Page() {
 
   // 「今日一首」回到出发点的确认弹窗
   const [confirmToday, setConfirmToday] = useState(false);
+
+  // 音乐日记（全屏子页）是否展开
+  const [diaryOpen, setDiaryOpen] = useState(false);
 
   // 用户列表版本号：置顶/删除后强制重渲染身份列表
   const [usersTick, setUsersTick] = useState(0);
@@ -340,6 +344,10 @@ export default function Page() {
       case 'playlist':
         setFullList(true);
         break;
+      case 'diary':
+        // 音乐日记 → 全屏手账式日记
+        setDiaryOpen(true);
+        break;
     }
   };
 
@@ -552,8 +560,8 @@ export default function Page() {
       {content}
       {/* 柔和光斑跟随鼠标（含惯性），悬停可点元素时放大 */}
       <CursorGlow />
-      {/* 小梨花 Oreo 浮窗伙伴（进入主界面且已登录时出现） */}
-      {phase === 'welcome' && userId && (
+      {/* 小梨花 Oreo 浮窗伙伴（进入主界面且已登录时出现；日记打开时让位） */}
+      {phase === 'welcome' && userId && !diaryOpen && (
         <CatCompanion
           playlist={playlist}
           context={{
@@ -563,8 +571,8 @@ export default function Page() {
           }}
         />
       )}
-      {/* 右上角全屏菜单（最终界面） */}
-      {phase === 'welcome' && <FullscreenMenu onNavigate={handleNavigate} />}
+      {/* 右上角全屏菜单（最终界面；日记打开时让位） */}
+      {phase === 'welcome' && !diaryOpen && <FullscreenMenu onNavigate={handleNavigate} />}
       {/* 我的歌单「全览」界面（另起一整屏；主界面的歌单面板保留为预览） */}
       {phase === 'welcome' && fullList && (
         <FullPlaylistScreen
@@ -578,6 +586,11 @@ export default function Page() {
       )}
       {(phase === 'opening' || phase === 'fade') && (
         <VinylHero fading={phase === 'fade'} onEnter={() => setPhase('fade')} />
+      )}
+
+      {/* 音乐日记（全屏子页：手账式记录每天听的歌） */}
+      {phase === 'welcome' && userId && diaryOpen && (
+        <DiaryPage onClose={() => setDiaryOpen(false)} />
       )}
 
       {/* 「今日一首」回到出发点确认 */}

@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from 'react';
 
-export type MenuRoute = 'home' | 'map' | 'playlist' | 'today';
+export type MenuRoute = 'home' | 'map' | 'playlist' | 'today' | 'diary';
 
 interface Props {
   onNavigate: (route: MenuRoute) => void;
@@ -18,6 +18,7 @@ const ITEMS: Array<{ zh: string; en: string; route: MenuRoute }> = [
   { zh: '情绪边界地图', en: 'Emotion Map', route: 'map' },
   { zh: '我的歌单', en: 'My Playlist', route: 'playlist' },
   { zh: '今日一首', en: 'Today', route: 'today' },
+  { zh: '音乐日记', en: 'Music Diary', route: 'diary' },
 ];
 
 export default function FullscreenMenu({ onNavigate }: Props) {
