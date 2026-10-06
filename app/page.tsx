@@ -324,9 +324,6 @@ export default function Page() {
       case 'map':
         scrollTo('#emotion-map');
         break;
-      case 'trail':
-        scrollTo('#recommend');
-        break;
       case 'playlist':
         setFullList(true);
         break;

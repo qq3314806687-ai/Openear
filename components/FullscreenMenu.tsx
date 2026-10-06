@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from 'react';
 
-export type MenuRoute = 'home' | 'map' | 'playlist' | 'trail' | 'today';
+export type MenuRoute = 'home' | 'map' | 'playlist' | 'today';
 
 interface Props {
   onNavigate: (route: MenuRoute) => void;
@@ -17,7 +17,6 @@ const ITEMS: Array<{ zh: string; en: string; route: MenuRoute }> = [
   { zh: '首页', en: 'Home', route: 'home' },
   { zh: '情绪边界地图', en: 'Emotion Map', route: 'map' },
   { zh: '我的歌单', en: 'My Playlist', route: 'playlist' },
-  { zh: '推荐路线', en: 'Recommended Trail', route: 'trail' },
   { zh: '今日一首', en: 'Today', route: 'today' },
 ];
 
