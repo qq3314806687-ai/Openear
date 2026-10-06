@@ -712,6 +712,9 @@ body.menu-open {
     #f3c6d6 100%
   );
 }
+.flower-field--overlay {
+  background: none;
+}
 .flower-field__hills {
   position: absolute;
   left: 0;

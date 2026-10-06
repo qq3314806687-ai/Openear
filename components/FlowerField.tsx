@@ -4,7 +4,11 @@
  * 花朵摇曳动态背景（吉卜力风）：粉白花海 + 蓝天白云 + 远山 + 飘落花瓣。
  * 部署在「今日一首」卡片背景，纯 CSS/SVG 动画，仅 transform/opacity，GPU 友好；
  * 尊重 prefers-reduced-motion（见 globals.css 的 reduce 规则）。
+ * overlay 模式：只渲染摇曳花朵与飘落花瓣，供叠放在图片/视频背景之上。
  */
+interface Props {
+  overlay?: boolean;
+}
 
 interface Bloom {
   left: number;
@@ -44,22 +48,26 @@ const PETALS: Petal[] = [
   { left: 91, size: 7, dur: 7.8, delay: 2.8, drift: -14 },
 ];
 
-export default function FlowerField() {
+export default function FlowerField({ overlay = false }: Props) {
   return (
-    <div className="flower-field" aria-hidden>
-      {/* 远景山丘 */}
-      <svg
-        className="flower-field__hills"
-        viewBox="0 0 600 200"
-        preserveAspectRatio="none"
-      >
-        <path d="M0 128 Q150 58 320 118 T600 98 V200 H0 Z" fill="#b9dca6" />
-        <path d="M0 158 Q180 98 360 148 T600 128 V200 H0 Z" fill="#9cc98d" />
-      </svg>
+    <div className={overlay ? 'flower-field flower-field--overlay' : 'flower-field'} aria-hidden>
+      {!overlay && (
+        <>
+          {/* 远景山丘 */}
+          <svg
+            className="flower-field__hills"
+            viewBox="0 0 600 200"
+            preserveAspectRatio="none"
+          >
+            <path d="M0 128 Q150 58 320 118 T600 98 V200 H0 Z" fill="#b9dca6" />
+            <path d="M0 158 Q180 98 360 148 T600 128 V200 H0 Z" fill="#9cc98d" />
+          </svg>
 
-      {/* 云层缓慢漂移 */}
-      <div className="flower-field__cloud c1" />
-      <div className="flower-field__cloud c2" />
+          {/* 云层缓慢漂移 */}
+          <div className="flower-field__cloud c1" />
+          <div className="flower-field__cloud c2" />
+        </>
+      )}
 
       {/* 花海：每朵绕茎底摇曳 */}
       {BLOOMS.map((b, i) => (
