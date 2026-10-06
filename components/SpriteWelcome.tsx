@@ -149,8 +149,8 @@ export default function SpriteWelcome({ onLogin }: Props) {
     <section className="flex min-h-[calc(100vh-4.5rem)] flex-col p-1 sm:p-3">
       {/* 顶栏 */}
       <div className="flex items-center gap-3 border-b border-ink/10 pb-3">
-        <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl shadow-glow ring-1 ring-ink/10">
-          <img src="/cat-sprite-head.jpg" alt="小精灵 Oreo" className="h-full w-full object-cover" />
+        <span className="relative h-11 w-11 shrink-0">
+          <img src="/cat-sprite-head.png" alt="小精灵 Oreo" className="h-full w-full object-contain" />
           <span className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-emerald-400 text-[9px] font-bold text-black ring-2 ring-white">
             AI
           </span>
@@ -181,8 +181,8 @@ export default function SpriteWelcome({ onLogin }: Props) {
         {chats.map((c) =>
           c.who === 'sprite' ? (
             <div key={c.id} className="flex items-start gap-2.5 animate-card-in">
-              <span className="mt-0.5 h-8 w-8 shrink-0 overflow-hidden rounded-xl ring-1 ring-ink/10">
-                <img src="/cat-sprite-head.jpg" alt="" className="h-full w-full object-cover" />
+              <span className="mt-0.5 h-8 w-8 shrink-0">
+                <img src="/cat-sprite-head.png" alt="" className="h-full w-full object-contain" />
               </span>
               <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-ink/10 bg-ink/5 px-3.5 py-2.5 text-[13px] leading-relaxed text-ink/85">
                 {c.text}

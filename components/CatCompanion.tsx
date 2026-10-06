@@ -139,7 +139,7 @@ export default function CatCompanion({ playlist, context }: Props) {
   const toggle = () => setOpen((o) => !o);
 
   const waving = hovered && !open && !dragRef.current?.moved;
-  const face = open ? '/cat-sprite.jpg' : waving ? '/cat-sprite-wave.jpg' : '/cat-sprite.jpg';
+  const face = open ? '/cat-sprite.png' : waving ? '/cat-sprite-wave.png' : '/cat-sprite.png';
 
   return (
     <div
@@ -155,8 +155,8 @@ export default function CatCompanion({ playlist, context }: Props) {
         >
           {/* 头 */}
           <div className="flex items-center gap-3 border-b border-ink/10 pb-3">
-            <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-2xl shadow-glow ring-1 ring-ink/10">
-              <img src="/cat-sprite-head.jpg" alt="Oreo" className="h-full w-full object-cover" />
+            <span className="relative h-10 w-10 shrink-0">
+              <img src="/cat-sprite-head.png" alt="Oreo" className="h-full w-full object-contain" />
               <span className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-emerald-400 text-[8px] font-bold text-black ring-2 ring-white">
                 AI
               </span>
@@ -188,8 +188,8 @@ export default function CatCompanion({ playlist, context }: Props) {
                 </div>
               ) : (
                 <div key={m.id} className="flex items-start gap-2.5 animate-card-in">
-                  <span className="mt-0.5 h-7 w-7 shrink-0 overflow-hidden rounded-xl ring-1 ring-ink/10">
-                    <img src="/cat-sprite-head.jpg" alt="" className="h-full w-full object-cover" />
+                  <span className="mt-0.5 h-7 w-7 shrink-0">
+                    <img src="/cat-sprite-head.png" alt="" className="h-full w-full object-contain" />
                   </span>
                   <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-ink/10 bg-ink/5 px-3.5 py-2.5 text-[13px] leading-relaxed text-ink/85">
                     {m.text}
@@ -200,8 +200,8 @@ export default function CatCompanion({ playlist, context }: Props) {
 
             {busy && (
               <div className="flex items-start gap-2.5">
-                <span className="mt-0.5 h-7 w-7 shrink-0 overflow-hidden rounded-xl ring-1 ring-ink/10">
-                  <img src="/cat-sprite-head.jpg" alt="" className="h-full w-full object-cover" />
+                <span className="mt-0.5 h-7 w-7 shrink-0">
+                  <img src="/cat-sprite-head.png" alt="" className="h-full w-full object-contain" />
                 </span>
                 <div className="max-w-[85%] flex-1 space-y-2 rounded-2xl rounded-tl-sm border border-ink/10 bg-ink/5 px-3.5 py-2.5">
                   <div className="h-2.5 w-4/5 rounded-full skeleton" />
@@ -281,11 +281,11 @@ export default function CatCompanion({ playlist, context }: Props) {
             toggle();
           }
         }}
-        className={`relative h-20 w-20 cursor-grab touch-none overflow-hidden rounded-[1.4rem] shadow-glow ring-1 ring-ink/10 active:cursor-grabbing sm:h-[88px] sm:w-[88px] ${
+        className={`relative h-20 w-20 cursor-grab touch-none active:cursor-grabbing sm:h-[88px] sm:w-[88px] ${
           waving ? 'cat-wave' : open ? '' : 'cat-idle'
         }`}
       >
-        <img src={face} alt="Oreo" className="h-full w-full object-cover" draggable={false} />
+        <img src={face} alt="Oreo" className="h-full w-full object-contain" draggable={false} />
       </div>
     </div>
   );
