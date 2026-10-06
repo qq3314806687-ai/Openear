@@ -146,8 +146,20 @@ export default function VinylHero({ onEnter, fading = false }: Props) {
       className={`hero${fading ? ' hero-fade' : ''}`}
       style={{ '--poster': `url("${POSTER_URL}")` } as React.CSSProperties}
     >
-      {/* 媒体层：poster 首帧 + 视频淡入 */}
-      <div className="hero__media" aria-hidden>
+      {/* 媒体层：poster 首帧 + 视频淡入；点击黑胶播放器进入音乐世界 */}
+      <div
+        className="hero__media"
+        role="button"
+        tabIndex={0}
+        aria-label="点击黑胶播放器，走进音乐世界"
+        onClick={go}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            go();
+          }
+        }}
+      >
         <img
           src={POSTER_URL}
           alt="金色黄昏时分，苔石上的一台黑胶唱机，远处是雪山与淡蓝天空"
@@ -164,6 +176,12 @@ export default function VinylHero({ onEnter, fading = false }: Props) {
         >
           <source src={VIDEO_URL} type="video/mp4" />
         </video>
+        <div className="hero__enter-hint" aria-hidden>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <path d="M7 4.5v15l13-7.5-13-7.5Z" />
+          </svg>
+          点击唱机，走进音乐世界
+        </div>
       </div>
 
       {/* 导航：logo · 当地时间天气 · 菜单（目录） */}
@@ -221,11 +239,6 @@ export default function VinylHero({ onEnter, fading = false }: Props) {
             </button>
           ))}
           <div className="menu__rule" aria-hidden />
-          <div className="menu__foot">
-            <button type="button" className="btn-ink" onClick={go}>
-              走进音乐世界
-            </button>
-          </div>
         </div>
       )}
     </section>
