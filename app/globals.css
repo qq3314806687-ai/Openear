@@ -449,7 +449,7 @@ body.menu-open {
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: clamp(1.5rem, 5vh, 4.5rem) var(--pad-x) 0;
+  padding: clamp(0.8rem, 2.6vh, 2.2rem) var(--pad-x) 0;
   pointer-events: none;
 }
 
@@ -640,7 +640,7 @@ body.menu-open {
     line-height: 1.12;
     max-width: 11ch;
   }
-  .hero__inner { padding-top: clamp(1.75rem, 7vh, 3rem); }
+  .hero__inner { padding-top: clamp(0.5rem, 2.6vh, 1.25rem); }
   .hero__media video,
   .hero__media img { object-position: center 58%; }
 }
