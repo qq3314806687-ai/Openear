@@ -375,47 +375,19 @@ body.menu-open {
   opacity: 0.75;
   transform: translateY(-0.15em);
 }
-.hero .nav__links {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  gap: var(--nav-gap);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.hero .nav__links a,
-.hero .nav__links button {
+/* 顶部中间：当地时间 · 天气（随访问者 IP 定位） */
+.hero .nav__meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  padding: 0 0.75rem;
   font-family: 'Instrument Sans', 'PingFang SC', 'Noto Sans SC', sans-serif;
-  font-size: clamp(0.95rem, 1.05vw, 1.05rem);
-  letter-spacing: 0.005em;
-  padding: 0.15rem 0;
-  display: inline-block;
-  position: relative;
-  color: var(--ink);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-.hero .nav__links a::after,
-.hero .nav__links button::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 0.5s var(--ease);
-}
-.hero .nav__links a:hover::after,
-.hero .nav__links button:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
+  font-size: clamp(0.74rem, 1.05vw, 0.88rem);
+  letter-spacing: 0.05em;
+  color: rgba(11, 11, 12, 0.62);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .hero .nav__right {
   display: flex;
@@ -468,6 +440,7 @@ body.menu-open {
 }
 .hero .line:nth-child(1) > span { animation-delay: 0.55s; }
 .hero .line:nth-child(2) > span { animation-delay: 0.68s; }
+.hero .line:nth-child(3) > span { animation-delay: 0.81s; }
 
 /* 标题区：顶部锚定（不垂直居中），媒体在下方 */
 .hero__inner {
@@ -628,8 +601,6 @@ body.menu-open {
 
 /* ============ 响应式 ============ */
 @media (max-width: 900px) {
-  .hero .nav__links,
-  .hero .nav__right .btn-ink { display: none; }
   .hero__inner { align-items: flex-start; }
   .hero .line { white-space: normal; }
   .hero .headline {
@@ -638,6 +609,16 @@ body.menu-open {
   }
   .hero__media img,
   .hero__media video { object-position: center 60%; }
+}
+
+@media (max-width: 560px) {
+  .hero .nav { gap: 0.4rem; }
+  .hero .nav__meta {
+    font-size: 0.68rem;
+    white-space: normal;
+    line-height: 1.45;
+    padding: 0 0.35rem;
+  }
 }
 
 @media (max-width: 900px) and (orientation: portrait) {
