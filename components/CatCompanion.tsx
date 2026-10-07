@@ -273,8 +273,14 @@ export default function CatCompanion({ playlist, context }: Props) {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={() => (dragRef.current = null)}
-        onPointerEnter={() => setHovered(true)}
-        onPointerLeave={() => setHovered(false)}
+        onPointerEnter={(e) => {
+          if (e.pointerType === 'touch') return;
+          setHovered(true);
+        }}
+        onPointerLeave={(e) => {
+          if (e.pointerType === 'touch') return;
+          setHovered(false);
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
