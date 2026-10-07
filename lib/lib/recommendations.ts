@@ -195,6 +195,80 @@ export function radialScatter(
   return chosen.map((x) => x.c);
 }
 
+/**
+ * 「贴近口味」保底名额：强度越低，越必须留下同流派 / 同家族的歌。
+ * 只靠 styleDistanceMax 过滤候选池是不够的——最终挑哪 10 首由 VA 环形取点决定，
+ * 流派不参与挑选，50% 也可能一首同流派都不剩。这里补一层硬性配额。
+ */
+function familiarQuota(intensity: Intensity, count: number) {
+  const keep = Math.max(0, 1 - Math.max(0, Math.min(100, intensity)) / 100);
+  return {
+    sameGenre: Math.round(count * 0.5 * keep), // 同流派
+    family: Math.round(count * keep), // 同流派或同家族
+  };
+}
+
+/**
+ * 按配额补位：把跨流派最远的几首换成同流派 / 同家族的候选。
+ * 换入时优先挑「离家半径与该槽位最接近、角度也最接近」的候选，尽量不破坏环绕路线形状。
+ */
+function enforceFamiliarQuota(
+  picked: Song[],
+  candidates: Song[],
+  userAvg: { valence: number; arousal: number },
+  topGenres: string[],
+  quota: { sameGenre: number; family: number },
+): Song[] {
+  if (topGenres.length === 0 || picked.length === 0) return picked;
+  const gdist = (s: Song) => Math.min(...topGenres.map((g) => getGenreDistance(s.genre, g)));
+  const radius = (s: Song) => vaDistance(s.valence, s.arousal, userAvg.valence, userAvg.arousal);
+  const angle = (s: Song) =>
+    normAngle(Math.atan2(s.arousal - userAvg.arousal, s.valence - userAvg.valence));
+
+  const out = picked.slice();
+  const used = new Set(out.map((s) => s.id));
+
+  const fill = (need: number, ok: (s: Song) => boolean) => {
+    if (out.filter(ok).length >= need) return;
+    const spare = candidates.filter((c) => !used.has(c.id) && ok(c));
+    if (spare.length === 0) return;
+
+    // 待替换者：不满足条件、流派距离最远的槽位优先让位
+    const victims = out
+      .map((s, i) => ({ s, i }))
+      .filter(({ s }) => !ok(s))
+      .sort((x, y) => gdist(y.s) - gdist(x.s));
+
+    let have = out.filter(ok).length;
+    for (const v of victims) {
+      if (have >= need || spare.length === 0) break;
+      const target = radius(v.s);
+      const slotAngle = angle(v.s);
+      let bestIdx = 0;
+      let bestCost = Infinity;
+      for (let k = 0; k < spare.length; k++) {
+        const cost =
+          Math.abs(radius(spare[k]) - target) + angularGap(angle(spare[k]), slotAngle) * 0.3;
+        if (cost < bestCost) {
+          bestCost = cost;
+          bestIdx = k;
+        }
+      }
+      const next = spare.splice(bestIdx, 1)[0];
+      used.delete(v.s.id);
+      used.add(next.id);
+      out[v.i] = next;
+      have++;
+    }
+  };
+
+  fill(quota.sameGenre, (s) => gdist(s) === 0);
+  fill(quota.family, (s) => gdist(s) <= 1);
+
+  // 补位后重排回极角序，保持环绕路线连续
+  return out.sort((a, b) => angle(a) - angle(b));
+}
+
 /** 主函数：以用户歌单为"已拥有"，按滑块档位输出 10 首推荐 */
 export function generateRecommendations(
   owned: Song[],
@@ -242,12 +316,18 @@ export function generateRecommendations(
 
   const base = songs.filter((s) => !idSet.has(s.id));
 
-  // 技术层：流派距离达标（随强度放宽）。保底只放宽流派、绝不放情绪半径，
-  // 避免低强度因召回不足而让散点反而比高强度更远（保持远近单调）。
-  const genreOk = (c: Song) =>
-    Math.min(...topGenres.map((g) => styleDistance(c.genre, g))) <= styleDistanceMax;
-  let pool = base.filter(genreOk);
-  if (pool.length < COUNT) pool = base;
+  // 技术层：流派距离达标（随强度放宽）。召回不足时「逐级放宽流派距离」——
+  // 取流派距离最近的 COUNT 首补足，而不是一次性放开到全库：后者会让稀疏流派
+  // （如 Post-Rock）在低强度混入大量无关流派，反而比高强度更远，破坏远近单调。
+  const genreDist = (c: Song) =>
+    Math.min(...topGenres.map((g) => styleDistance(c.genre, g)));
+  let pool = base.filter((c) => genreDist(c) <= styleDistanceMax);
+  if (pool.length < COUNT) {
+    pool = base
+      .slice()
+      .sort((a, b) => genreDist(a) - genreDist(b))
+      .slice(0, COUNT);
+  }
 
   // 选点（绕用户口味环形发散），扇区角度顺序输出即环绕路线
   let ordered: Song[];
@@ -279,6 +359,15 @@ export function generateRecommendations(
       user,
       historySongs,
       COUNT,
+    );
+    // 保底：低强度必须留下同流派 / 同家族的歌。候选取自完整曲库，
+    // 这样即使候选池因召回不足被整体放宽，也能把贴近口味的歌补回来。
+    ordered = enforceFamiliarQuota(
+      ordered,
+      base,
+      userAvg,
+      topGenres,
+      familiarQuota(intensity, COUNT),
     );
   }
 
