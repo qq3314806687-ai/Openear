@@ -17,6 +17,7 @@ import WeekStrip from './WeekStrip';
 import StickerCard from './StickerCard';
 import SongDetail from './SongDetail';
 import AddSongSheet from './AddSongSheet';
+import BrandMark from '@/components/BrandMark';
 
 interface Props {
   onClose: () => void;
@@ -134,7 +135,7 @@ export default function DiaryPage({ onClose }: Props) {
                   <path d="m12 19-7-7 7-7" />
                 </svg>
               </button>
-              <Logo />
+              <BrandMark compact tagline={false} />
             </header>
 
             {/* 周历条：桌面端居中限制宽度 */}
@@ -241,15 +242,4 @@ export default function DiaryPage({ onClose }: Props) {
   );
 }
 
-/** 品牌 logo：openear，小写圆润，o 里填暖橙小圆点 */
-function Logo() {
-  return (
-    <span className="text-[20px] font-bold lowercase tracking-tight text-[#6B5644]">
-      <span className="relative">
-        o
-        <span className="absolute left-1/2 top-1/2 h-[5px] w-[5px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E8A87C]" />
-      </span>
-      penear
-    </span>
-  );
-}
+
