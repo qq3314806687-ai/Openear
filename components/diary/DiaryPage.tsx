@@ -51,6 +51,12 @@ export default function DiaryPage({ onClose }: Props) {
     updateEntries((prev) => prev.map((e) => (e.id === id ? { ...e, userNote: text } : e)));
   };
 
+  /** 删除贴纸：从日记移除并退回贴纸墙 */
+  const deleteEntry = (id: string) => {
+    updateEntries((prev) => prev.filter((e) => e.id !== id));
+    setViewingId(null);
+  };
+
   /** 刷新当天贴纸：重新微调倾斜角度（「重新解析」占位交互） */
   const refreshDay = () => {
     updateEntries((prev) =>
@@ -93,6 +99,7 @@ export default function DiaryPage({ onClose }: Props) {
             entry={viewing}
             onBack={() => setViewingId(null)}
             onSaveNote={(text) => saveNote(viewing.id, text)}
+            onDelete={() => deleteEntry(viewing.id)}
           />
         ) : (
           <>
