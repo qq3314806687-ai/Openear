@@ -718,8 +718,8 @@ body.menu-open {
   background: linear-gradient(135deg, #ffc2cf, #ff9eb5);
 }
 @keyframes petalRainFall {
-  0% { transform: translate3d(0, -20px, 0) rotate(0deg); }
-  100% { transform: translate3d(var(--drift, 30px), 90vh, 0) rotate(340deg); }
+  0% { top: -16px; transform: translate3d(0, 0, 0) rotate(0deg); }
+  100% { top: 108%; transform: translate3d(var(--drift, 30px), 0, 0) rotate(340deg); }
 }
 
 /* ============ 情绪地图 · 光影呼吸 ============ */
@@ -768,6 +768,14 @@ body.menu-open {
 @keyframes catHelloIn {
   from { opacity: 0; transform: translateY(6px) scale(0.92); }
   to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 触屏无 hover：停掉猫猫呼吸/挥手等持续动画，避免移动端上下抖动 */
+@media (hover: none) {
+  .cat-idle,
+  .cat-wave {
+    animation: none;
+  }
 }
 
 /* ============ 减少动态效果 ============ */
