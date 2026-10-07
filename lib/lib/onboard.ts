@@ -125,19 +125,23 @@ export function onboard(a: OnboardAnswers): User {
   return registerUser(user);
 }
 
-/** 小精灵对话建号：把 5 题累积的画像转成听歌历史 + 默认探索强度 */
-export function spriteOnboard(p: {
-  valence: ValencePref;
-  arousal: ArousalPref;
-  genres: string[];
-  nickname?: string;
-  openness: OpennessPref;
-}): { user: User; intensity: Intensity } {
+/** 小精灵对话建号：把口味画像转成听歌历史 + 默认探索强度。
+ *  presetUserId：注册流程已生成 userId 时复用它，保证账号与用户一一对应。 */
+export function spriteOnboard(
+  p: {
+    valence: ValencePref;
+    arousal: ArousalPref;
+    genres: string[];
+    nickname?: string;
+    openness: OpennessPref;
+  },
+  presetUserId?: string,
+): { user: User; intensity: Intensity } {
   const mood: MoodPref = p.valence === 1 ? 'positive' : p.valence === -1 ? 'dark' : 'mixed';
   const energy: EnergyPref =
     p.arousal === 'low' ? 'low' : p.arousal === 'high' || p.arousal === 'wild' ? 'high' : 'mid';
   const user: User = {
-    userId: genUserId(),
+    userId: presetUserId ?? genUserId(),
     name: (p.nickname ?? '').trim() || autoName({ mood, energy, openness: p.openness }),
     history: buildHistory(mood, energy, p.genres, 10),
   };

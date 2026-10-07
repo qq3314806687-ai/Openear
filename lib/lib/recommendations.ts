@@ -64,30 +64,26 @@ function moodLabel(valence: number, arousal: number): string {
   return '平和';
 }
 
-/** 播放占比近似「上周循环N首」的行为文案 */
-function behavioralReason(candidate: Song, user: User, historySongs: Song[]): string {
-  const genre = candidate.genre !== historySongs[0]?.genre ? candidate.genre : '同流派';
-  const loops = 2 + Math.round(Math.abs(candidate.bpm - 90) / 20);
-  const topGenre = getGenreDistribution(historySongs)[0];
-  if (genre !== '同流派') {
-    const historyInGenre = historySongs.filter((s) => s.genre === candidate.genre).length;
-    if (historyInGenre > 0) {
-      return `你近期循环了 ${historyInGenre} 首 ${genre}，这次帮你换点新面孔`;
-    }
-    return `你还没有跨入 ${genre}，但最近的播放节奏正好适合`;
+/**
+ * 行为层理由：只依据歌单里真实存在的歌，不虚构任何收听历史。
+ * 歌单里没有的歌，绝不写成「听过 / 循环过」。
+ */
+function behavioralReason(candidate: Song, owned: Song[]): string {
+  const sameGenre = owned.filter((s) => s.genre === candidate.genre).length;
+  if (sameGenre > 0) {
+    return `你歌单里已有 ${sameGenre} 首 ${candidate.genre}，这首是同一片地带的邻居`;
   }
-  return `你上周循环了 ${loops} 首${topGenre}，口味已经足够熟悉`;
+  return `你的歌单里还没有 ${candidate.genre}，正好给你开一扇新窗`;
 }
 
-/** 技术层理由 */
-function technicalReason(candidate: Song, historySongs: Song[]): string {
-  const avgBpm =
-    historySongs.reduce((a, s) => a + s.bpm, 0) / Math.max(historySongs.length, 1);
+/** 技术层理由：基准是歌单的平均节奏，不是「常听」 */
+function technicalReason(candidate: Song, owned: Song[]): string {
+  const avgBpm = owned.reduce((a, s) => a + s.bpm, 0) / Math.max(owned.length, 1);
   const diff = Math.round(candidate.bpm - avgBpm);
-  if (Math.abs(diff) <= 12) return `BPM ${candidate.bpm} 节奏与你常听的很接近`;
+  if (Math.abs(diff) <= 12) return `BPM ${candidate.bpm}，和你歌单的平均节奏很接近`;
   return diff > 0
-    ? `BPM ${candidate.bpm}，比你常听的快 ${diff}，适合提神`
-    : `BPM ${candidate.bpm}，比你常听的慢 ${-diff}，帮助放缓`;
+    ? `BPM ${candidate.bpm}，比你歌单的平均快 ${diff}，适合提神`
+    : `BPM ${candidate.bpm}，比你歌单的平均慢 ${-diff}，帮助放缓`;
 }
 
 /** 情绪层理由 */
@@ -106,14 +102,13 @@ function emotionalReason(candidate: Song, userAvg: { valence: number; arousal: n
 /** 生成三层理由标签 */
 function generateReasonTags(
   candidate: Song,
-  user: User,
-  historySongs: Song[],
+  owned: Song[],
   userAvg: { valence: number; arousal: number },
 ): Recommendation['reasonTags'] {
   return {
-    technical: technicalReason(candidate, historySongs),
+    technical: technicalReason(candidate, owned),
     emotional: emotionalReason(candidate, userAvg),
-    behavioral: behavioralReason(candidate, user, historySongs),
+    behavioral: behavioralReason(candidate, owned),
   };
 }
 
@@ -292,7 +287,7 @@ export function generateRecommendations(
     const prev = ordered[i - 1] ?? { valence: userAvg.valence, arousal: userAvg.arousal };
     return {
       song,
-      reasonTags: generateReasonTags(song, user, historySongs, userAvg),
+      reasonTags: generateReasonTags(song, owned, userAvg),
       vaDistance: vaDistance(song.valence, song.arousal, prev.valence, prev.arousal),
       vaDistanceFromUserAvg: vaDistance(
         song.valence,

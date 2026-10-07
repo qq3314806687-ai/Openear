@@ -20,7 +20,7 @@ import {
 } from '@/lib/lib/playlist';
 import { getAudioBlob } from '@/lib/lib/idb';
 import { getPreviewUrl } from '@/lib/lib/preview';
-import { getTodayMoodById } from '@/lib/lib/today';
+import { getTodayMoodById, pickTodaySong, type TodayMood } from '@/lib/lib/today';
 import MapSection from '@/components/MapSection';
 import CatCompanion from '@/components/CatCompanion';
 import IntensitySlider from '@/components/IntensitySlider';
@@ -28,13 +28,15 @@ import RecommendationPanel from '@/components/RecommendationPanel';
 import SearchPanel from '@/components/SearchPanel';
 import AudioPlayer from '@/components/AudioPlayer';
 import LoginScreen from '@/components/LoginScreen';
+import AccountLogin from '@/components/AccountLogin';
 import VinylHero from '@/components/VinylHero';
 import UserMenu from '@/components/UserMenu';
 import BrandMark from '@/components/BrandMark';
 import CursorGlow from '@/components/CursorGlow';
 import FullscreenMenu, { type MenuRoute } from '@/components/FullscreenMenu';
 import FullPlaylistScreen from '@/components/FullPlaylistScreen';
-import ConfirmDialog from '@/components/ConfirmDialog';
+import SpriteWelcome from '@/components/SpriteWelcome';
+import TodayMoodPicker from '@/components/TodayMoodPicker';
 import DiaryPage from '@/components/diary/DiaryPage';
 
 const SESSION_KEY = 'openear.session';
@@ -75,8 +77,15 @@ export default function Page() {
   // 我的歌单「全览」界面是否展开（主界面的歌单面板保留为预览）
   const [fullList, setFullList] = useState(false);
 
-  // 「今日一首」回到出发点的确认弹窗
-  const [confirmToday, setConfirmToday] = useState(false);
+  // 「今日起点」心情重测弹窗（只换今天的心情，与长期口味画像/账号无关）
+  const [moodOpen, setMoodOpen] = useState(false);
+
+  // 菜单「新的出发」→ 注册界面（账号 + 密码）
+  const [accountOpen, setAccountOpen] = useState(false);
+
+  // 注册成功后自动进入的小精灵测试题（起名字 + 生成口味画像）
+  const [registerQuizOpen, setRegisterQuizOpen] = useState(false);
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
 
   // 音乐日记（全屏子页）是否展开
   const [diaryOpen, setDiaryOpen] = useState(false);
@@ -166,6 +175,54 @@ export default function Page() {
     return getRuntimeSongs().find((s) => s.id === today.songId) ?? null;
   }, [today]);
   const todayMood = today ? getTodayMoodById(today.moodId) : undefined;
+
+  /** 重测今日心情：只换今天的「今日一首」，不碰口味画像与账号 */
+  const handleTodayPick = (mood: TodayMood) => {
+    setMoodOpen(false);
+    const song = pickTodaySong(mood);
+    if (!song) return;
+    const next = { moodId: mood.id, songId: song.id };
+    setToday(next);
+    try {
+      localStorage.setItem('openear.today', JSON.stringify(next));
+    } catch {
+      /* 忽略写入失败 */
+    }
+  };
+
+  // 弹层（心情重测/注册/注册后的测试题）：Esc 关闭 + 锁背景滚动
+  useEffect(() => {
+    if (!moodOpen && !accountOpen && !registerQuizOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMoodOpen(false);
+        setAccountOpen(false);
+        setRegisterQuizOpen(false);
+        setPendingUserId(null);
+      }
+    };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [moodOpen, accountOpen, registerQuizOpen]);
+
+  /** 注册成功：关掉注册表单，带着该账号的 userId 进入测试题起名字 */
+  const handleRegistered = (userId: string) => {
+    setAccountOpen(false);
+    setPendingUserId(userId);
+    setRegisterQuizOpen(true);
+  };
+
+  /** 注册后的测试题完成：用预设 userId 建号并登录 */
+  const handleRegisterDone = (u: User, opts?: { intensity?: Intensity }) => {
+    setRegisterQuizOpen(false);
+    setPendingUserId(null);
+    login(u, opts);
+  };
 
   /* ---------- 播放器 ---------- */
   const ensureAudio = (): HTMLAudioElement => {
@@ -286,16 +343,6 @@ export default function Page() {
     }
   };
 
-  const logout = () => {
-    setUserId(null);
-    closePlayer();
-    try {
-      localStorage.removeItem(SESSION_KEY);
-    } catch {
-      /* 忽略 */
-    }
-  };
-
   const switchUser = (next: string) => {
     setUserId(next);
     try {
@@ -354,8 +401,8 @@ export default function Page() {
         setPhase('opening');
         break;
       case 'today':
-        // 今日一首 → 询问是否回到出发点（是则退出当前身份，重新测试生成新的今日一首）
-        setConfirmToday(true);
+        // 新的出发 → 注册界面（账号 + 密码，注册后自动进入测试题起名字）
+        setAccountOpen(true);
         break;
       case 'map':
         scrollTo('#emotion-map');
@@ -367,18 +414,6 @@ export default function Page() {
         // 音乐日记 → 全屏手账式日记
         setDiaryOpen(true);
         break;
-    }
-  };
-
-  /** 「今日一首」确认后：退出当前身份并清除今日状态，回到出发点重新测试 */
-  const restartToToday = () => {
-    setConfirmToday(false);
-    logout();
-    setPlaylist([]);
-    try {
-      localStorage.removeItem('openear.today');
-    } catch {
-      /* 忽略 */
     }
   };
 
@@ -491,6 +526,13 @@ export default function Page() {
             }`}
           >
             {playlistIds.includes(todaySong.id) ? '✓ 已在歌单' : '+ 加入歌单'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMoodOpen(true)}
+            className="btn-lift shrink-0 rounded-full border border-ink/10 bg-ink/5 px-3 py-1.5 text-xs font-semibold text-ink/70 transition-colors hover:border-cyan-400/50 hover:text-ink"
+          >
+            重测今日一首
           </button>
         </div>
       )}
@@ -612,16 +654,45 @@ export default function Page() {
         <DiaryPage onClose={() => setDiaryOpen(false)} />
       )}
 
-      {/* 「今日一首」回到出发点确认 */}
-      <ConfirmDialog
-        open={confirmToday}
-        title="回到出发的地方"
-        message="是否回到出发的地方？回到起点后，你将退出当前身份，重新测试生成新的一首「今日一首」。"
-        confirmText="是，回去"
-        cancelText="再想想"
-        onConfirm={restartToToday}
-        onCancel={() => setConfirmToday(false)}
-      />
+      {/* 菜单「新的出发」→ 注册界面（账号 + 密码） */}
+      {accountOpen && (
+        <div className="fixed inset-0 z-[140] overflow-y-auto bg-[#e8eef4]/80 backdrop-blur-sm">
+          <button
+            type="button"
+            aria-label="关闭注册界面"
+            onClick={() => setAccountOpen(false)}
+            className="fixed right-4 top-4 z-[141] grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-white/80 text-lg text-ink shadow-glow backdrop-blur transition-colors hover:bg-white"
+          >
+            ✕
+          </button>
+          <div className="mx-auto w-full max-w-[520px] px-4 pb-12 pt-16 sm:pt-20">
+            <AccountLogin onRegistered={handleRegistered} />
+          </div>
+        </div>
+      )}
+
+      {/* 注册后自动进入的测试题（起名字 + 生成口味画像，昵称与账号密码无关） */}
+      {registerQuizOpen && (
+        <div className="fixed inset-0 z-[150] overflow-y-auto bg-[#e8eef4]/80 backdrop-blur-sm">
+          <button
+            type="button"
+            aria-label="关闭测试题"
+            onClick={() => {
+              setRegisterQuizOpen(false);
+              setPendingUserId(null);
+            }}
+            className="fixed right-4 top-4 z-[151] grid h-10 w-10 place-items-center rounded-full border border-ink/10 bg-white/80 text-lg text-ink shadow-glow backdrop-blur transition-colors hover:bg-white"
+          >
+            ✕
+          </button>
+          <div className="mx-auto w-full max-w-[860px] px-4 pb-12 pt-16 sm:pt-20">
+            <SpriteWelcome presetUserId={pendingUserId ?? undefined} onLogin={handleRegisterDone} />
+          </div>
+        </div>
+      )}
+
+      {/* 「今日起点」重测今日一首：只挑今天的心情（与长期口味画像、账号无关） */}
+      <TodayMoodPicker open={moodOpen} onClose={() => setMoodOpen(false)} onPick={handleTodayPick} />
     </>
   );
 }

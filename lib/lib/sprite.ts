@@ -1,28 +1,27 @@
 ﻿/**
  * 小精灵对话式建号 —— 题库与画像推导。
- * 5 个"探索音乐世界"的问题，每个含 4 个固定选项（value 固定）+ 隐藏的「其他」自填项。
- * 用户的回答会累积成一套音乐画像（情绪色彩 valence / 能量节奏 arousal / 流派口味 / 探索胆量），
- * 用于生成属于 TA 的听歌历史与默认探索强度。
+ * 五道题各摸一个维度：歌的类型、节奏、歌带来的情绪、歌的基调、听歌的时间。
+ * 问的是长期口味，与「今日心情」无关。
+ * 答案累积成音乐画像（valence 情绪色彩 / arousal 能量节奏 / genres 流派 / openness 探索胆量），
+ * 用于铺出初始歌单种子与默认探索强度。
  */
 import type { Intensity } from '../types';
 
 /** 情绪色彩：1 积极 / -1 低落 / 0 中性 */
 export type ValencePref = 1 | 0 | -1;
-/** 能量节奏：low / mid / high / wild（wild 会抬升探索胆量） */
+/** 能量节奏：low / mid / high / wild */
 export type ArousalPref = 'low' | 'mid' | 'high' | 'wild';
 
 export interface SpriteOption {
   /** 固定选项值；「其他」固定为 '__other' */
   value: string;
   label: string;
-  /** 小精灵选中后的俏皮回应 */
+  /** Oreo 选中后的一句话 */
   reply: string;
   valence: ValencePref;
   arousal: ArousalPref;
-  /** 该选项暗示的偏好流派（用于让历史更贴 TA 的口味） */
+  /** 该选项暗示的流派 */
   genres?: string[];
-  /** Q5 专用：探索胆量 */
-  openness?: Intensity;
 }
 
 export interface SpriteQuestion {
@@ -37,198 +36,205 @@ export const OTHER = '__other';
 
 export const SPRITE_QUESTIONS: SpriteQuestion[] = [
   {
-    id: 'q1',
-    emoji: '🌆',
-    line: '如果把你的今天配一首 BGM，此刻你更想被哪种声音包围？',
-    customPrompt: '写下你想被什么样的声音包围…',
+    id: 'genre',
+    emoji: '💿',
+    line: '喵～先从你走得最熟的那条路开始：歌单里被你翻来覆去听的，是哪一类？别怕说错，我只是想知道，你耳朵最常落脚的地方长什么样。',
+    customPrompt: '写下你循环最多的那一类…',
     options: [
-      {
-        value: 'coffee',
-        label: '傍晚一杯热咖啡，热气升腾',
-        reply: '☕ 好耶，是那种能把坏心情泡软的暖。',
-        valence: 1,
-        arousal: 'low',
-        genres: ['Lo-fi', 'Jazz'],
-      },
-      {
-        value: 'dance',
-        label: '午夜舞池，灯球开始旋转',
-        reply: '🪩 身体先动起来，世界晚点再说。',
-        valence: 1,
-        arousal: 'wild',
-        genres: ['House', 'Techno', 'K-pop'],
-      },
       {
         value: 'soul',
-        label: '深夜地铁，耳机里的深情演唱',
-        reply: '🎧 有些歌是呼吸，有些歌是心跳。',
+        label: '灵魂乐 · 深夜的深情',
+        reply:
+          '🎧 灵魂乐，深夜那一挂。好眼光——那种声音不吵，却能把人整个包住。像夜里的一盏小灯，我先把它记进地图。',
         valence: 0,
         arousal: 'mid',
-        genres: ['Soul', 'R&B'],
+        genres: ['Soul', 'R&B', 'Funk'],
       },
       {
-        value: 'seaside',
-        label: '无人的海边，只有风与浪',
-        reply: '🌊 安静，但不空洞的那种辽阔。',
-        valence: -1,
-        arousal: 'low',
-        genres: ['Ambient', 'Post-Rock', 'New Age'],
-      },
-    ],
-  },
-  {
-    id: 'q2',
-    emoji: '🥁',
-    line: '你的心跳，此刻想跟紧哪种节拍？',
-    customPrompt: '告诉我你想要的节奏…',
-    options: [
-      {
-        value: 'walk',
-        label: '慢悠悠的散步节拍',
-        reply: '散步党，世界转慢一点也没关系。',
-        valence: 0,
-        arousal: 'low',
-      },
-      {
-        value: 'nod',
-        label: '适中律动，边走边点头',
-        reply: '刚刚好，松弛又带着节奏。',
-        valence: 0,
-        arousal: 'mid',
-      },
-      {
-        value: 'sprint',
-        label: '高铁般的冲刺感',
-        reply: '冲刺模式，肾上腺先到站。',
+        value: 'rock',
+        label: '摇滚 · 吉他与鼓',
+        reply:
+          '🎸 摇滚。鼓点一响，人就醒了。这股劲儿我喜欢——像背包一甩就能上路，前方有什么都不怕。',
         valence: 0,
         arousal: 'high',
+        genres: ['Rock', 'Alternative', 'Indie'],
       },
       {
-        value: 'moody',
-        label: '忽快忽慢，全看心情',
-        reply: '心情即节奏，下一秒谁也不知道。',
-        valence: 0,
-        arousal: 'wild',
-      },
-    ],
-  },
-  {
-    id: 'q3',
-    emoji: '🎭',
-    line: '此刻你最想被触动的情绪，是哪一种？',
-    customPrompt: '描述你此刻的情绪…',
-    options: [
-      {
-        value: 'warm',
-        label: '温暖治愈，像下午三点的太阳',
-        reply: '大大的暖意，先收进歌单再说。',
-        valence: 1,
-        arousal: 'low',
-        genres: ['Pop', 'Gospel', 'Folk'],
-      },
-      {
-        value: 'blue',
-        label: '略带忧郁的浪漫',
-        reply: '那种忧郁也很美，我懂。',
-        valence: -1,
-        arousal: 'low',
-        genres: ['Blues', 'Shoegaze', 'Lo-fi'],
-      },
-      {
-        value: 'zen',
-        label: '平静释然，什么都不想追究',
-        reply: '归于平静，呼吸也跟着变长。',
-        valence: 0,
-        arousal: 'low',
-        genres: ['Ambient', 'New Age', 'Classical'],
-      },
-      {
-        value: 'blaze',
-        label: '狂喜爆发，想把开心喊出来',
-        reply: '那就别藏了，一起喊出来！',
-        valence: 1,
-        arousal: 'high',
-        genres: ['Punk', 'K-pop', 'EDM'],
-      },
-    ],
-  },
-  {
-    id: 'q4',
-    emoji: '🍽️',
-    line: '如果只能冲进一家「声音食堂」，你会直奔哪家？',
-    customPrompt: '写下你最爱的那家声音食堂…',
-    options: [
-      {
-        value: 'cafeshop',
-        label: '☕ 咖啡因馆（Lo-fi / Chillhop / Jazz）',
-        reply: '咖啡因馆老主顾，氛围感拉满。',
-        valence: 0,
-        arousal: 'low',
-        genres: ['Lo-fi', 'Chillhop', 'Jazz'],
-      },
-      {
-        value: 'neonclub',
-        label: '🪩 霓虹电子俱乐部（House / Synthwave）',
-        reply: '俱乐部的霓虹灯认得你的脚步。',
+        value: 'electronic',
+        label: '电子 · 合成器脉动',
+        reply:
+          '🎛️ 电子。合成器的光一层层铺开，像夜里走过霓虹的街。你会喜欢那种被推着往前的感觉，对吧？这颗星我挂上了。',
         valence: 0,
         arousal: 'high',
         genres: ['Electronic', 'House', 'Synthwave'],
       },
       {
-        value: 'vinyl',
-        label: '📀 街头黑胶唱片行（Hip-Hop / R&B / Soul）',
-        reply: '黑胶的沙沙声，是时代的温柔。',
+        value: 'folk',
+        label: '民谣 · 木吉他与故事',
+        reply:
+          '🪵 民谣。木吉他和故事，慢慢讲也不着急。这是很稳的落脚点——走得再远，回头都找得到回家的路。',
         valence: 0,
-        arousal: 'mid',
-        genres: ['Hip-Hop', 'R&B', 'Soul', 'Funk'],
-      },
-      {
-        value: 'campfire',
-        label: '🏕️ 山野篝火营（Folk / Country / Blues）',
-        reply: '篝火边的木吉他，慵懒又诚实。',
-        valence: -1,
         arousal: 'low',
-        genres: ['Folk', 'Country', 'Blues', 'Rock'],
+        genres: ['Folk', 'Country', 'Blues'],
       },
     ],
   },
   {
-    id: 'q5',
-    emoji: '🪄',
-    line: '你会允许小精灵带你，在你的音乐宇宙里走多远？',
-    customPrompt: '告诉我想走的路…',
+    id: 'tempo',
+    emoji: '🥁',
+    line: '第二个问题。你偏爱的节奏走得多快？慢的像呼吸，快的像奔跑——你的心跳，习惯停在哪一档？',
+    customPrompt: '写下你偏爱的节奏…',
     options: [
       {
-        value: 'nearby',
-        label: '就在我熟悉的地方附近散步',
-        reply: '稳扎稳打，先守住自己喜欢的一亩三分地。',
+        value: 'slow',
+        label: '慢板 · 像呼吸',
+        reply: '慢板。听得清呼吸，也听得见自己。走慢一点没关系，好风景本来就都在路上。',
         valence: 0,
         arousal: 'low',
-        openness: 25, // 保守贴身（0-100 探索强度）
       },
       {
-        value: 'block',
-        label: '偶尔绕到隔壁街区看看',
-        reply: '老地方保留，但新街区的风景也想瞄一眼。',
+        value: 'mid',
+        label: '中板 · 正好走路',
+        reply: '中板。不快不慢，正好走路——这种节奏最耐听，也最能陪你走很远。',
         valence: 0,
         arousal: 'mid',
-        openness: 50, // 平衡
       },
       {
-        value: 'far',
-        label: '放手，带我去我没去过的地方',
-        reply: '勇敢的小耳朵，未知的旋律正在等你。',
+        value: 'fast',
+        label: '快板 · 想跑起来',
+        reply: '快板，想跑起来的那种！那就别收着——前面正好有一整片旷野在等你。',
         valence: 0,
         arousal: 'high',
-        openness: 75, // 野探
       },
       {
-        value: 'explain',
-        label: '先告诉我为什么，再带我走',
-        reply: '好奇心拉满，每步都要明白走向何方。',
+        value: 'varied',
+        label: '多变 · 看当天',
+        reply: '多变。那就都不设限——今天这样、明天那样。耳朵自由的人，往往最能撞见惊喜。',
+        valence: 0,
+        arousal: 'wild',
+      },
+    ],
+  },
+  {
+    id: 'feeling',
+    emoji: '🫧',
+    line: '第三个。一首歌真正打动你的时候，通常让你怎么样？是想哭、想笑、想安静，还是浑身来劲？',
+    customPrompt: '写下它让你怎么了…',
+    options: [
+      {
+        value: 'cry',
+        label: '想哭 · 被戳中',
+        reply:
+          '想哭。能让你哭出来的，都是好歌——它替你说了你没说出口的那句话。这份真诚我收好了，不轻放。',
+        valence: -1,
+        arousal: 'low',
+        genres: ['Blues', 'Shoegaze'],
+      },
+      {
+        value: 'smile',
+        label: '想笑 · 跟着哼',
+        reply: '想笑、会跟着哼的那种，最好听。快乐是会传染的——你看，我这就被你传染了。',
+        valence: 1,
+        arousal: 'mid',
+        genres: ['Pop', 'Gospel'],
+      },
+      {
+        value: 'calm',
+        label: '安静 · 心沉下来',
+        reply:
+          '安静。能把心按下来的歌，像给情绪盖了条毯子。你要的从来不是热闹，是一个能安放的地方。',
+        valence: 0,
+        arousal: 'low',
+        genres: ['Ambient', 'New Age', 'Classical'],
+      },
+      {
+        value: 'rush',
+        label: '想冲 · 浑身来劲',
+        reply: '想冲，一开口就想冲出去！这股劲先存着——等会儿画地图的时候，正好用得上。',
+        valence: 1,
+        arousal: 'high',
+        genres: ['Punk', 'EDM'],
+      },
+    ],
+  },
+  {
+    id: 'tone',
+    emoji: '🎨',
+    line: '第四个。你偏爱什么样的底色？阳光下的明亮、旧毛衣一样的温暖、雨后的一点忧郁，还是深夜的冷冽？',
+    customPrompt: '写下你偏爱的底色…',
+    options: [
+      {
+        value: 'bright',
+        label: '明亮 · 阳光下的',
+        reply: '明亮。亮色的底子，走到哪儿都晒得到太阳。好，我在你的地图上留一片晴。',
+        valence: 1,
+        arousal: 'mid',
+        genres: ['City Pop', 'Latin'],
+      },
+      {
+        value: 'warm',
+        label: '温暖 · 像旧毛衣',
+        reply: '温暖。像旧毛衣，不扎人，也不声张——这种底色看着普通，却最能长久。',
+        valence: 1,
+        arousal: 'low',
+        genres: ['Jazz', 'Lo-fi'],
+      },
+      {
+        value: 'melancholy',
+        label: '忧郁 · 雨后的',
+        reply: '忧郁。带一点忧郁的底色，其实很好看——那不是坏天气，是一片有故事的天。',
+        valence: -1,
+        arousal: 'low',
+        genres: ['Post-Rock', 'Grunge'],
+      },
+      {
+        value: 'cold',
+        label: '冷冽 · 深夜的',
+        reply: '冷冽。像雨后的街，清醒、干净，还带着一点锋利。我喜欢这种不讨好的诚实。',
+        valence: 0,
+        arousal: 'low',
+        genres: ['Ambient', 'Techno'],
+      },
+    ],
+  },
+  {
+    id: 'moment',
+    emoji: '🕰️',
+    line: '最后一个问题。你最常在什么时候按下播放？清晨的路上、午后的独处、深夜的睡前，还是出门运动的时候？',
+    customPrompt: '写下你最常听歌的时刻…',
+    options: [
+      {
+        value: 'morning',
+        label: '清晨 · 通勤路上',
+        reply: '清晨。通勤路上需要一点提神——那是给一整天打底的声音，你选得很认真。',
         valence: 0,
         arousal: 'mid',
-        openness: 50, // 平衡
+        genres: ['Pop', 'City Pop'],
+      },
+      {
+        value: 'afternoon',
+        label: '午后 · 一个人',
+        reply: '午后，一个人的时候，慢一点正好。这段时光值得被好好配乐，我陪你一起。',
+        valence: 0,
+        arousal: 'low',
+        genres: ['Lo-fi', 'Jazz', 'Chillhop'],
+      },
+      {
+        value: 'night',
+        label: '深夜 · 睡前',
+        reply:
+          '深夜。深夜的耳朵最诚实——白天不敢想的事，这会儿都冒出来了。别怕，我在这儿陪着你。',
+        valence: 0,
+        arousal: 'low',
+        genres: ['Ambient', 'New Age', 'Classical'],
+      },
+      {
+        value: 'workout',
+        label: '运动 · 出门时',
+        reply: '出门运动。得有劲，得能推着你往前——这类声音最适合在风里放，跑起来吧！',
+        valence: 0,
+        arousal: 'high',
+        genres: ['EDM', 'House', 'Hip-Hop'],
       },
     ],
   },
@@ -242,7 +248,7 @@ export interface SpriteProfile {
   nickname?: string;
 }
 
-/** 把每题的作答累积成一份画像（宽松：选多个就取多数/取和最激进的） */
+/** 把每题的作答累积成一份画像（宽松：取多数情绪、取最激进的节奏、流派去重） */
 export function aggregateProfile(
   picks: Record<string, SpriteOption>,
 ): Omit<SpriteProfile, 'nickname'> {
@@ -250,20 +256,17 @@ export function aggregateProfile(
   let valenceSum = 0;
   let arousal: ArousalPref = 'mid';
   const genres: string[] = [];
-  let openness: Intensity | undefined;
 
   for (const o of opts) {
     valenceSum += o.valence;
     const rank: Record<ArousalPref, number> = { low: 0, mid: 1, high: 2, wild: 3 };
     if (rank[o.arousal] > rank[arousal]) arousal = o.arousal;
     o.genres?.forEach((g) => { if (!genres.includes(g)) genres.push(g); });
-    if (o.openness) openness = o.openness;
   }
 
   const valence: ValencePref = valenceSum > 0 ? 1 : valenceSum < 0 ? -1 : 0;
-  // 「wild」抬升探索胆量，至少到平衡（>25）
-  let finalOpenness: Intensity = openness ?? 50;
-  if (arousal === 'wild' && finalOpenness <= 25) finalOpenness = 50;
+  // 探索胆量由口味跨度推断：节奏越多变的耳朵，越愿意往外走
+  const openness: Intensity = arousal === 'wild' ? 75 : 50;
 
-  return { valence, arousal, genres: genres.slice(0, 4), openness: finalOpenness };
+  return { valence, arousal, genres: genres.slice(0, 4), openness };
 }

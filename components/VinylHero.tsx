@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { zh: '首页', en: 'Home' },
   { zh: '情绪边界地图', en: 'Emotion Map' },
   { zh: '我的歌单', en: 'My Playlist' },
-  { zh: '今日一首', en: 'Today' },
+  { zh: '新的出发', en: 'New Start' },
 ];
 
 const MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];

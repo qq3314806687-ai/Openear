@@ -17,7 +17,7 @@ const ITEMS: Array<{ zh: string; en: string; route: MenuRoute }> = [
   { zh: '首页', en: 'Home', route: 'home' },
   { zh: '情绪边界地图', en: 'Emotion Map', route: 'map' },
   { zh: '我的歌单', en: 'My Playlist', route: 'playlist' },
-  { zh: '今日一首', en: 'Today', route: 'today' },
+  { zh: '新的出发', en: 'New Start', route: 'today' },
   { zh: '音乐日记', en: 'Music Diary', route: 'diary' },
 ];
 
