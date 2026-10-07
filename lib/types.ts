@@ -23,8 +23,8 @@ export interface Song {
 
 /** 用户（users.json） */
 export interface User {
-  userId: string; // "userA"
-  name: string; // "Lo-fi 窄口味党"
+  userId: string; // 新账号 "user-1"
+  name: string; // 昵称
   history: string[]; // 已听歌曲 ID 列表
 }
 

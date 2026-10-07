@@ -17,7 +17,7 @@ export function getSongs(): Song[] {
   return songsCache;
 }
 
-/** 读取用户列表：内置三个演示身份 + 会话期新建用户（按置顶顺序，隐藏被删除的） */
+/** 读取用户列表：会话期新建用户（按置顶顺序，隐藏被删除的） */
 export function getUsers(): User[] {
   const prefs = loadPrefs();
   const hidden = new Set(prefs.hidden);
@@ -32,7 +32,7 @@ export function getUsers(): User[] {
     }
   }
   ordered.push(...byId.values());
-  // 允许为空：用户可以把演示身份全部删除；页面层用「旅人」访客兜底当前用户
+  // 允许为空：用户可以把身份全部删除；页面层用「旅人」访客兜底当前用户
   return ordered;
 }
 
@@ -43,7 +43,7 @@ export function pinUser(userId: string): void {
   savePrefs(prefs);
 }
 
-/** 删除某个身份（内置与运行时都支持，持久化隐藏） */
+/** 删除某个身份（持久化隐藏） */
 export function removeUser(userId: string): void {
   const idx = runtimeUsers.findIndex((u) => u.userId === userId);
   if (idx >= 0) runtimeUsers.splice(idx, 1);

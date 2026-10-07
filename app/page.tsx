@@ -154,7 +154,7 @@ export default function Page() {
 
   const users = getUsers();
   const user = useMemo(
-    () => users.find((u) => u.userId === (userId ?? 'userA')) ?? users[0] ?? GUEST,
+    () => users.find((u) => u.userId === userId) ?? users[0] ?? GUEST,
     [users, userId],
   );
 
