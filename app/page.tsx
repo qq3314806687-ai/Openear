@@ -39,7 +39,6 @@ import SpriteWelcome from '@/components/SpriteWelcome';
 import TodayMoodPicker from '@/components/TodayMoodPicker';
 import DiaryPage from '@/components/diary/DiaryPage';
 
-const SESSION_KEY = 'openear.session';
 const CUSTOM_KEY = 'openear.customUsers';
 
 /** 身份列表被清空时的兜底访客（演示身份删光后接管，保证页面始终有当前用户） */
@@ -106,17 +105,12 @@ export default function Page() {
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // 恢复会话：重建自定义用户 + 还原上次身份
+  // 进入时重建自定义用户（供登录校验查找），但不自动登录：点黑胶后统一进登录/注册界面
   useEffect(() => {
     try {
       readCustom().forEach(registerUser);
-      const raw = localStorage.getItem(SESSION_KEY);
-      if (raw) {
-        const { userId: saved } = JSON.parse(raw) as { userId: string };
-        if (saved && getUsers().some((u) => u.userId === saved)) setUserId(saved);
-      }
     } catch {
-      /* 损坏/不可用的数据一律忽略，回到登录 */
+      /* 损坏/不可用的数据一律忽略 */
     }
     setHydrated(true);
   }, []);
@@ -332,7 +326,6 @@ export default function Page() {
     // 该身份若因历史遗留被隐藏，登录即恢复可见
     unhideUser(u.userId);
     try {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ userId: u.userId }));
       if (u.userId.startsWith('user-')) {
         const arr = readCustom();
         if (!arr.some((x) => x.userId === u.userId)) arr.push(u);
@@ -345,11 +338,6 @@ export default function Page() {
 
   const switchUser = (next: string) => {
     setUserId(next);
-    try {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ userId: next }));
-    } catch {
-      /* 忽略 */
-    }
   };
 
   /** 右键「置顶」：把身份移到列表最前并持久化 */

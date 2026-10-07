@@ -1,13 +1,15 @@
 'use client';
 
 /**
- * 登录界面：两种进入方式。
+ * 登录界面：三种进入方式。
+ * - 登录：已有账号 + 密码，直接回到对应用户
  * - 注册新账号：自定义账号 + 密码，注册成功后自动进入小精灵测试题（起名字 + 生成口味画像）
  * - 小精灵带我探索：不填账号，直接对话式 5 问建号
  */
 import { useState } from 'react';
 import type { Intensity, User } from '@/lib/types';
 import AccountLogin from '@/components/AccountLogin';
+import LoginForm from '@/components/LoginForm';
 import SpriteWelcome from '@/components/SpriteWelcome';
 import PetalRain from '@/components/PetalRain';
 
@@ -15,10 +17,10 @@ interface Props {
   onLogin: (user: User, opts?: { intensity?: Intensity }) => void;
 }
 
-type LoginMode = 'account' | 'sprite';
+type LoginMode = 'signin' | 'register' | 'sprite';
 
 export default function LoginScreen({ onLogin }: Props) {
-  const [mode, setMode] = useState<LoginMode>('account');
+  const [mode, setMode] = useState<LoginMode>('signin');
   // 注册成功后带下来的 userId：测试题结束时用它建号，昵称则由测试题收集
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
 
@@ -33,16 +35,27 @@ export default function LoginScreen({ onLogin }: Props) {
       <PetalRain />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[1100px] flex-col justify-center px-5 py-6 sm:py-10">
-        {/* 顶部切换：注册新账号 / 小精灵探索 */}
+        {/* 顶部切换：登录 / 注册新账号 / 小精灵探索 */}
         <div className="mb-4 flex justify-center">
-          <div className="grid w-fit grid-cols-2 gap-1 rounded-full border border-ink/10 bg-white/60 p-1 text-xs font-semibold backdrop-blur">
+          <div className="grid w-fit grid-cols-3 gap-1 rounded-full border border-ink/10 bg-white/60 p-1 text-xs font-semibold backdrop-blur">
             <button
               type="button"
-              onClick={() => switchMode('account')}
+              onClick={() => switchMode('signin')}
               className={
-                mode === 'account'
-                  ? 'rounded-full bg-white/90 px-4 py-1.5 text-ink shadow-sm'
-                  : 'px-4 py-1.5 text-ink/50 hover:text-ink'
+                mode === 'signin'
+                  ? 'rounded-full bg-white/90 px-3 py-1.5 text-ink shadow-sm sm:px-4'
+                  : 'px-3 py-1.5 text-ink/50 hover:text-ink sm:px-4'
+              }
+            >
+              登录
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode('register')}
+              className={
+                mode === 'register'
+                  ? 'rounded-full bg-white/90 px-3 py-1.5 text-ink shadow-sm sm:px-4'
+                  : 'px-3 py-1.5 text-ink/50 hover:text-ink sm:px-4'
               }
             >
               注册新账号
@@ -52,8 +65,8 @@ export default function LoginScreen({ onLogin }: Props) {
               onClick={() => switchMode('sprite')}
               className={
                 mode === 'sprite'
-                  ? 'rounded-full bg-white/90 px-4 py-1.5 text-ink shadow-sm'
-                  : 'px-4 py-1.5 text-ink/50 hover:text-ink'
+                  ? 'rounded-full bg-white/90 px-3 py-1.5 text-ink shadow-sm sm:px-4'
+                  : 'px-3 py-1.5 text-ink/50 hover:text-ink sm:px-4'
               }
             >
               小精灵带我探索
@@ -61,8 +74,10 @@ export default function LoginScreen({ onLogin }: Props) {
           </div>
         </div>
 
-        {/* 主区：注册表单 / 小精灵对话（注册成功后自动切到这里做测试题） */}
-        {mode === 'account' ? (
+        {/* 主区：登录 / 注册 / 小精灵对话（注册成功后自动切到小精灵测试题） */}
+        {mode === 'signin' ? (
+          <LoginForm onLogin={(user) => onLogin(user)} />
+        ) : mode === 'register' ? (
           <AccountLogin
             onRegistered={(userId) => {
               setPendingUserId(userId);
