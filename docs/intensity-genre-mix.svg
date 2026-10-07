@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" role="img" aria-label="探索强度与推荐流派构成的关系：强度越高，同流派越少、无关流派越多">
+  <style>
+    .ttl  { fill: #171717; font: 500 16px "SF Pro Text","PingFang SC",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    .sub  { fill: #52525B; font: 400 12px "SF Pro Text","PingFang SC",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    .ax   { fill: #52525B; font: 400 12px "SF Pro Text","PingFang SC",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    .axb  { fill: #4B3FE3; font: 500 12px "SF Pro Text","PingFang SC",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    .grid { stroke: rgba(23,23,23,0.12); stroke-width: 1; }
+    .axis { stroke: rgba(23,23,23,0.24); stroke-width: 1; }
+    .s1   { fill: #3C2ECA; }
+    .s2   { fill: #A9AEFF; }
+    .s3   { fill: #6F6FFF; }
+    .s4   { fill: #22A5F7; }
+    .focus{ fill: none; stroke: #4B3FE3; stroke-width: 2; }
+  </style>
+
+  <text class="ttl" x="40" y="32">探索强度 → 推荐流派构成</text>
+  <text class="sub" x="40" y="54">5 个单曲歌单的平均构成（每档 10 首推荐）</text>
+
+  <g class="grid">
+    <line x1="100" y1="120" x2="660" y2="120"/>
+    <line x1="100" y1="184" x2="660" y2="184"/>
+    <line x1="100" y1="248" x2="660" y2="248"/>
+    <line x1="100" y1="312" x2="660" y2="312"/>
+    <line x1="100" y1="376" x2="660" y2="376"/>
+  </g>
+  <line class="axis" x1="100" y1="440" x2="660" y2="440"/>
+
+  <g class="ax" text-anchor="end">
+    <text x="88" y="124">10</text>
+    <text x="88" y="188">8</text>
+    <text x="88" y="252">6</text>
+    <text x="88" y="316">4</text>
+    <text x="88" y="380">2</text>
+    <text x="88" y="444">0</text>
+  </g>
+
+  <defs>
+    <clipPath id="bc0"><path d="M100 128 a8 8 0 0 1 8 -8 h64 a8 8 0 0 1 8 8 v312 h-80 z"/></clipPath>
+    <clipPath id="bc1"><path d="M220 128 a8 8 0 0 1 8 -8 h64 a8 8 0 0 1 8 8 v312 h-80 z"/></clipPath>
+    <clipPath id="bc2"><path d="M340 128 a8 8 0 0 1 8 -8 h64 a8 8 0 0 1 8 8 v312 h-80 z"/></clipPath>
+    <clipPath id="bc3"><path d="M460 128 a8 8 0 0 1 8 -8 h64 a8 8 0 0 1 8 8 v312 h-80 z"/></clipPath>
+    <clipPath id="bc4"><path d="M580 128 a8 8 0 0 1 8 -8 h64 a8 8 0 0 1 8 8 v312 h-80 z"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#bc0)">
+    <rect class="s1" x="100" y="286.4" width="80" height="153.6"/>
+    <rect class="s2" x="100" y="152"   width="80" height="134.4"/>
+    <rect class="s3" x="100" y="120"   width="80" height="32"/>
+  </g>
+
+  <g clip-path="url(#bc1)">
+    <rect class="s1" x="220" y="305.6" width="80" height="134.4"/>
+    <rect class="s2" x="220" y="152"   width="80" height="153.6"/>
+    <rect class="s3" x="220" y="120"   width="80" height="32"/>
+  </g>
+
+  <g clip-path="url(#bc2)">
+    <rect class="s1" x="340" y="337.6" width="80" height="102.4"/>
+    <rect class="s2" x="340" y="222.4" width="80" height="115.2"/>
+    <rect class="s3" x="340" y="120"   width="80" height="102.4"/>
+  </g>
+  <path class="focus" d="M340 128 a8 8 0 0 1 8 -8 h64 a8 8 0 0 1 8 8 v312 h-80 z"/>
+
+  <g clip-path="url(#bc3)">
+    <rect class="s1" x="460" y="382.4" width="80" height="57.6"/>
+    <rect class="s2" x="460" y="324.8" width="80" height="57.6"/>
+    <rect class="s3" x="460" y="273.6" width="80" height="51.2"/>
+    <rect class="s4" x="460" y="120"   width="80" height="153.6"/>
+  </g>
+
+  <g clip-path="url(#bc4)">
+    <rect class="s1" x="580" y="401.6" width="80" height="38.4"/>
+    <rect class="s2" x="580" y="350.4" width="80" height="51.2"/>
+    <rect class="s3" x="580" y="292.8" width="80" height="57.6"/>
+    <rect class="s4" x="580" y="120"   width="80" height="172.8"/>
+  </g>
+
+  <g class="ax" text-anchor="middle">
+    <text x="140" y="462">0%</text>
+    <text x="260" y="462">25%</text>
+    <text class="axb" x="380" y="462">50%</text>
+    <text x="500" y="462">75%</text>
+    <text x="620" y="462">100%</text>
+  </g>
+
+  <g class="ax">
+    <rect class="s1" x="100" y="486" width="12" height="12" rx="3"/>
+    <text x="118" y="496">同流派</text>
+    <rect class="s2" x="182" y="486" width="12" height="12" rx="3"/>
+    <text x="200" y="496">同家族</text>
+    <rect class="s3" x="264" y="486" width="12" height="12" rx="3"/>
+    <text x="282" y="496">桥梁</text>
+    <rect class="s4" x="334" y="486" width="12" height="12" rx="3"/>
+    <text x="352" y="496">无关</text>
+  </g>
+</svg>
