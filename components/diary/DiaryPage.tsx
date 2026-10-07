@@ -5,11 +5,13 @@ import { useEffect, useState } from 'react';
 import type { DiaryEntry } from '@/lib/lib/diary';
 import {
   analyzeScreenshot,
+  applySongEdits,
   entriesOf,
   fallbackMeta,
   loadDiary,
   saveDiary,
   toDateStr,
+  type SongEdits,
 } from '@/lib/lib/diary';
 import WeekStrip from './WeekStrip';
 import StickerCard from './StickerCard';
@@ -27,6 +29,7 @@ export default function DiaryPage({ onClose }: Props) {
   const [showAdd, setShowAdd] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [freshId, setFreshId] = useState<string | null>(null);
+  const [toast, setToast] = useState('');
 
   // 日记打开期间锁定页面滚动，返回主界面时恢复
   useEffect(() => {
@@ -35,6 +38,12 @@ export default function DiaryPage({ onClose }: Props) {
       document.body.style.overflow = '';
     };
   }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(''), 2600);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const dayEntries = entriesOf(entries, selected);
   const viewing = entries.find((e) => e.id === viewingId) ?? null;
@@ -49,6 +58,13 @@ export default function DiaryPage({ onClose }: Props) {
 
   const saveNote = (id: string, text: string) => {
     updateEntries((prev) => prev.map((e) => (e.id === id ? { ...e, userNote: text } : e)));
+  };
+
+  /** 手动修正识别结果：只改这一张贴纸的歌曲信息 */
+  const saveMeta = (id: string, edits: SongEdits) => {
+    updateEntries((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, song: applySongEdits(e.song, edits) } : e)),
+    );
   };
 
   /** 删除贴纸：从日记移除并退回贴纸墙 */
@@ -68,7 +84,7 @@ export default function DiaryPage({ onClose }: Props) {
     );
   };
 
-  /** 上传播放截图 → mock 识别 → 新贴纸「啪嗒」贴上 */
+  /** 上传播放截图 → 识别歌曲信息 → 新贴纸「啪嗒」贴上 */
   const handleAnalyze = async (file: File) => {
     setShowAdd(false);
     setParsing(true);
@@ -89,6 +105,7 @@ export default function DiaryPage({ onClose }: Props) {
     setFreshId(entry.id);
     setSelected(entry.date);
     setParsing(false);
+    setToast(`已贴上《${meta.title}》· 认错了就点开它改一改`);
   };
 
   return (
@@ -99,6 +116,7 @@ export default function DiaryPage({ onClose }: Props) {
             entry={viewing}
             onBack={() => setViewingId(null)}
             onSaveNote={(text) => saveNote(viewing.id, text)}
+            onSaveMeta={(edits) => saveMeta(viewing.id, edits)}
             onDelete={() => deleteEntry(viewing.id)}
           />
         ) : (
@@ -189,12 +207,21 @@ export default function DiaryPage({ onClose }: Props) {
                 </svg>
               </span>
               <p className="text-[14px] font-medium text-[#6B5644]">AI 解析中…</p>
-              <p className="-mt-2 text-[12px] text-[#B5A99B]">正在把封面抠成贴纸</p>
+              <p className="-mt-2 text-[12px] text-[#B5A99B]">正在识别歌曲信息并抠成贴纸</p>
             </div>
           </div>
         )}
 
         <AddSongSheet open={showAdd} onClose={() => setShowAdd(false)} onAnalyze={handleAnalyze} />
+
+        {toast && (
+          <div
+            role="status"
+            className="diary-in fixed bottom-8 left-1/2 z-[95] -translate-x-1/2 rounded-full bg-[#6B5644] px-4 py-2 text-[12px] text-white shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+          >
+            {toast}
+          </div>
+        )}
       </div>
 
       {/* 右下角悬浮「+」：只保留添加新歌；毛玻璃样式与情绪边界地图一致 */}

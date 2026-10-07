@@ -2,13 +2,15 @@
 
 /** 单首歌详情：大贴纸 + 便利贴 + 歌曲信息 + 属性条 + AI tips */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type { DiaryEntry } from '@/lib/lib/diary';
+import type { DiaryEntry, SongEdits } from '@/lib/lib/diary';
 import StickyNote from './StickyNote';
+import EditSongSheet from './EditSongSheet';
 
 interface Props {
   entry: DiaryEntry;
   onBack: () => void;
   onSaveNote: (text: string) => void;
+  onSaveMeta: (edits: SongEdits) => void;
   onDelete: () => void;
 }
 
@@ -23,10 +25,11 @@ async function toFile(url: string, name: string): Promise<File | null> {
   }
 }
 
-export default function SongDetail({ entry, onBack, onSaveNote, onDelete }: Props) {
+export default function SongDetail({ entry, onBack, onSaveNote, onSaveMeta, onDelete }: Props) {
   const { song, userNote } = entry;
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [toast, setToast] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -154,6 +157,21 @@ export default function SongDetail({ entry, onBack, onSaveNote, onDelete }: Prop
                   <button
                     type="button"
                     role="menuitem"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setEditing(true);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] text-[#6B5644] transition-colors hover:bg-[#F5F1EB]"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg>
+                    编辑
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
                     onClick={handleShare}
                     className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] text-[#6B5644] transition-colors hover:bg-[#F5F1EB]"
                   >
@@ -216,6 +234,7 @@ export default function SongDetail({ entry, onBack, onSaveNote, onDelete }: Prop
         <p className="mt-2 text-[11px] text-[#B5A99B] tabular-nums">
           {song.genre} · V{song.visualRating} · A{song.moodRating} · {song.bpm} BPM
         </p>
+        <p className="mt-3 text-[11px] text-[#C4B6A4]">识别有误？点右上角 ··· 可以自己改</p>
       </div>
 
       {/* 属性条 */}
@@ -260,6 +279,17 @@ export default function SongDetail({ entry, onBack, onSaveNote, onDelete }: Prop
         <p className="mt-2 text-[13px] leading-relaxed text-[#6B5644]/85">{song.aiTips.analysis}</p>
         <p className="mt-2 text-[13px] leading-relaxed text-[#6B5644]/85">{personalized}</p>
       </div>
+
+      <EditSongSheet
+        open={editing}
+        initial={{ title: song.title, artist: song.artist, genre: song.genre }}
+        onClose={() => setEditing(false)}
+        onSave={(edits) => {
+          onSaveMeta(edits);
+          setEditing(false);
+          setToast('已更新歌曲信息');
+        }}
+      />
 
       {toast && (
         <div

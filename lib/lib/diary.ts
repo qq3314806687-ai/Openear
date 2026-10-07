@@ -1,7 +1,7 @@
 /**
- * 音乐日记 · 数据层（本地 JSON 模拟，无外部依赖）。
- * 首次进入自动播种示例贴纸；上传截图走 mock 识别。
- * analyzeScreenshot 独立封装，后续可直接替换成真实音乐识别 API。
+ * 音乐日记 · 数据层（数据存本地 localStorage）。
+ * 首次进入自动播种示例贴纸；上传截图交给视觉模型识别歌名 / 歌手 / 风格，
+ * 识别不到就退回示例曲库，保证贴纸一定能贴上。
  */
 export type Mood = 1 | 2 | 3 | 4 | 5;
 
@@ -27,6 +27,28 @@ export interface DiaryEntry {
   userNote: string; // 便利贴里用户写的感受
   stickerRotation: number; // -3 ~ 3 度
 }
+
+/** 视觉识别出的原始字段（可能为空串） */
+export interface RecognizedSong {
+  title: string;
+  artist: string;
+  genre: string;
+}
+
+/** 用户手动修正的三个字段 */
+export type SongEdits = RecognizedSong;
+
+/** 编辑风格时的候选词（可自由输入，这里只是给个提示） */
+export const SUGGESTED_GENRES: string[] = [
+  'Lo-fi', 'Chillhop', 'Ambient', 'Lounge', 'New Age', 'Classical', 'Jazz',
+  'Soul', 'R&B', 'Funk', 'Gospel',
+  'Pop', 'City Pop', 'K-pop', 'Hip-Hop', 'Reggae', 'Afrobeats', 'Latin',
+  'Electronic', 'House', 'Techno', 'Trance', 'EDM', 'Dubstep', 'Drum & Bass', 'Synthwave',
+  'Rock', 'Alternative', 'Indie', 'Punk', 'Metal', 'Grunge',
+  'Post-Rock', 'Shoegaze',
+  'Folk', 'Country', 'Blues',
+  'Funk / R&B', 'Jazz Hip-Hop',
+];
 
 const KEY = 'openear.diary';
 
@@ -121,21 +143,111 @@ const GENRE_VIBE: Record<string, { aura: string; analysis: string }> = {
   },
 };
 
-function buildMeta(p: PoolSong): SongMeta {
-  const vibe = GENRE_VIBE[p.genre] ?? GENRE_VIBE['Lo-fi'];
-  return {
-    title: p.title,
-    artist: p.artist,
-    genre: p.genre,
-    bpm: p.bpm,
-    visualRating: p.visualRating,
-    moodRating: p.moodRating,
-    coverStickerUrl: svgCover(p.genre),
-    aiTips: {
-      intro: `《${p.title}》是${p.artist}的一首${p.genre}，${vibe.aura}。`,
-      analysis: `${vibe.analysis}；BPM ${p.bpm} 的节奏刚刚好，不会太赶，也不会太散。`,
+/** 识别出风格后，用它推一套默认节奏与评分（模型只负责认字段，评分仍是规则） */
+const GENRE_DEFAULTS: Record<string, { bpm: number; visualRating: Mood; moodRating: Mood }> = {
+  'Lo-fi': { bpm: 78, visualRating: 4, moodRating: 3 },
+  Chillhop: { bpm: 84, visualRating: 4, moodRating: 3 },
+  Ambient: { bpm: 70, visualRating: 3, moodRating: 2 },
+  Lounge: { bpm: 100, visualRating: 4, moodRating: 3 },
+  'New Age': { bpm: 72, visualRating: 3, moodRating: 2 },
+  Classical: { bpm: 72, visualRating: 3, moodRating: 3 },
+  Jazz: { bpm: 110, visualRating: 4, moodRating: 4 },
+  Soul: { bpm: 92, visualRating: 4, moodRating: 4 },
+  'R&B': { bpm: 85, visualRating: 4, moodRating: 5 },
+  Funk: { bpm: 118, visualRating: 4, moodRating: 5 },
+  Gospel: { bpm: 96, visualRating: 4, moodRating: 4 },
+  Pop: { bpm: 118, visualRating: 3, moodRating: 4 },
+  'City Pop': { bpm: 108, visualRating: 4, moodRating: 4 },
+  'K-pop': { bpm: 124, visualRating: 4, moodRating: 5 },
+  'Hip-Hop': { bpm: 92, visualRating: 4, moodRating: 4 },
+  Reggae: { bpm: 96, visualRating: 3, moodRating: 4 },
+  Afrobeats: { bpm: 104, visualRating: 4, moodRating: 5 },
+  Latin: { bpm: 100, visualRating: 4, moodRating: 5 },
+  Electronic: { bpm: 126, visualRating: 4, moodRating: 5 },
+  House: { bpm: 124, visualRating: 4, moodRating: 5 },
+  Techno: { bpm: 132, visualRating: 3, moodRating: 5 },
+  Trance: { bpm: 138, visualRating: 4, moodRating: 5 },
+  EDM: { bpm: 128, visualRating: 4, moodRating: 5 },
+  Dubstep: { bpm: 140, visualRating: 3, moodRating: 5 },
+  'Drum & Bass': { bpm: 174, visualRating: 3, moodRating: 5 },
+  Synthwave: { bpm: 110, visualRating: 4, moodRating: 4 },
+  Rock: { bpm: 124, visualRating: 4, moodRating: 4 },
+  Alternative: { bpm: 118, visualRating: 4, moodRating: 4 },
+  Indie: { bpm: 116, visualRating: 4, moodRating: 4 },
+  Punk: { bpm: 160, visualRating: 3, moodRating: 5 },
+  Metal: { bpm: 150, visualRating: 3, moodRating: 5 },
+  Grunge: { bpm: 120, visualRating: 3, moodRating: 4 },
+  'Post-Rock': { bpm: 100, visualRating: 3, moodRating: 3 },
+  Shoegaze: { bpm: 110, visualRating: 3, moodRating: 3 },
+  Folk: { bpm: 96, visualRating: 3, moodRating: 3 },
+  Country: { bpm: 100, visualRating: 4, moodRating: 3 },
+  Blues: { bpm: 92, visualRating: 3, moodRating: 3 },
+  'Funk / R&B': { bpm: 160, visualRating: 4, moodRating: 5 },
+  'Jazz Hip-Hop': { bpm: 92, visualRating: 5, moodRating: 4 },
+};
+
+const DEFAULT_FEEL = { bpm: 96, visualRating: 3 as Mood, moodRating: 3 as Mood };
+
+/** 由歌名 / 歌手 / 风格 / BPM 生成三段 tips（纯规则，不经过模型） */
+function buildTips(title: string, artist: string, genre: string, bpm: number): SongMeta['aiTips'] {
+  const who = artist || '未知歌手';
+  const vibe = GENRE_VIBE[genre];
+  if (vibe) {
+    return {
+      intro: `《${title}》是${who}的一首${genre}，${vibe.aura}。`,
+      analysis: `${vibe.analysis}；BPM ${bpm} 的节奏刚刚好，不会太赶，也不会太散。`,
       personalized: '今天听它正好——闭上眼睛，让旋律慢慢接管呼吸就好，它会接住你的。',
-    },
+    };
+  }
+  return {
+    intro: `《${title}》来自${who}，你把它归在「${genre}」这一格。`,
+    analysis: `这个风格标签在曲库里还比较少见，BPM ${bpm}；它到底是什么味道，可能要再听两遍才说得准。`,
+    personalized: '今天听它正好——闭上眼睛，让旋律慢慢接管呼吸就好，它会接住你的。',
+  };
+}
+
+interface MetaFields {
+  title: string;
+  artist: string;
+  genre: string;
+  bpm: number;
+  visualRating: Mood;
+  moodRating: Mood;
+}
+
+function buildMetaFromFields(f: MetaFields, coverStickerUrl: string): SongMeta {
+  return {
+    title: f.title,
+    artist: f.artist,
+    genre: f.genre,
+    bpm: f.bpm,
+    visualRating: f.visualRating,
+    moodRating: f.moodRating,
+    coverStickerUrl,
+    aiTips: buildTips(f.title, f.artist, f.genre, f.bpm),
+  };
+}
+
+function buildMeta(p: PoolSong): SongMeta {
+  return buildMetaFromFields(p, svgCover(p.genre));
+}
+
+/** 用户手动修正识别结果：歌名 / 歌手 / 风格；tips 与节奏跟着新风格重建 */
+export function applySongEdits(meta: SongMeta, edits: SongEdits): SongMeta {
+  const title = edits.title.trim() || meta.title;
+  const artist = edits.artist.trim() || meta.artist;
+  const genre = edits.genre.trim() || meta.genre;
+  const feel = genre !== meta.genre ? GENRE_DEFAULTS[genre] : undefined;
+  const bpm = feel?.bpm ?? meta.bpm;
+  return {
+    ...meta,
+    title,
+    artist,
+    genre,
+    bpm,
+    visualRating: feel?.visualRating ?? meta.visualRating,
+    moodRating: feel?.moodRating ?? meta.moodRating,
+    aiTips: buildTips(title, artist, genre, bpm),
   };
 }
 
@@ -167,12 +279,91 @@ function cropSquare(file: File): Promise<string> {
   });
 }
 
+/** 截图整体压到可接受的大小，再交给识别接口（避免整张原图 base64 过大） */
+function shrinkToDataUrl(file: File, maxSide: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.max(1, Math.round(img.naturalWidth * scale));
+        const h = Math.max(1, Math.round(img.naturalHeight * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('no canvas');
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      } catch (err) {
+        URL.revokeObjectURL(url);
+        reject(err);
+      }
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+const RECOGNIZE_TIMEOUT_MS = 16000;
+
+function shortField(v: unknown, max: number): string {
+  if (typeof v !== 'string') return '';
+  const s = v.trim().replace(/\s+/g, ' ');
+  return s.length > max ? s.slice(0, max) : s;
+}
+
+/** 调视觉识别接口；任何一步不对就返回 null，由调用方决定降级 */
+async function recognizeSong(file: File): Promise<RecognizedSong | null> {
+  try {
+    const image = await shrinkToDataUrl(file, 1280);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), RECOGNIZE_TIMEOUT_MS);
+    let resp: Response;
+    try {
+      resp = await fetch('/api/recognize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!resp.ok) return null;
+    const data = (await resp.json()) as { ok?: boolean; song?: Partial<RecognizedSong> };
+    if (!data?.ok || !data.song) return null;
+
+    const title = shortField(data.song.title, 80);
+    if (!title) return null; // 认不出歌名就等于没认出来
+    return {
+      title,
+      artist: shortField(data.song.artist, 80),
+      genre: shortField(data.song.genre, 40) || '未知风格',
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * 识别截图 → 结构化 SongMeta。
- * 第一版：封面做真实居中裁剪，元数据 / 评分 / tips 用 mock；后续替换成真实识别 API + LLM 打分。
+ * 封面走真实居中裁剪；歌名 / 歌手 / 风格交给视觉模型；
+ * 认不出来（未配置 / 超时 / 截图里没有歌曲信息）就退回示例曲库，保证贴纸一定能贴上。
  */
 export async function analyzeScreenshot(imageFile: File): Promise<SongMeta> {
-  const coverStickerUrl = await cropSquare(imageFile);
+  const [coverStickerUrl, recognized] = await Promise.all([
+    cropSquare(imageFile),
+    recognizeSong(imageFile),
+  ]);
+
+  if (recognized) {
+    const feel = GENRE_DEFAULTS[recognized.genre] ?? DEFAULT_FEEL;
+    return buildMetaFromFields({ ...recognized, ...feel }, coverStickerUrl);
+  }
+
   const pick = POOL[Math.floor(Math.random() * POOL.length)];
   return { ...buildMeta(pick), coverStickerUrl };
 }
